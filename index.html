@@ -375,14 +375,9 @@ function frame(ts) {
     const t = getDeepT();
     setActiveTurn(turnIndexAt(t));
     setActiveNote(-1);
-    if (nextCue < NOTES.length && t >= NOTES[nextCue].slot - 0.05) {
-      const cue = NOTES[nextCue];
-      resumeAt = cue.slot;
-      deep.pause();
-      mode = "waiting";
-      refreshVisual();
-      padTimer = setTimeout(() => beginEditor(nextCue), PAD);
-    } else if (t >= END - 0.05) {
+    // Editor notes never autoplay: dialogue runs uninterrupted; the third
+    // voice is only spliced in when a note card is explicitly clicked.
+    if (t >= END - 0.05) {
       stopAll();
     }
   } else if (mode === "editor") {
