@@ -15,6 +15,7 @@
     --blue: #a9c7e8;
     --pink: #eec0d2;
     --accent: #7ab8ff;
+    --gold: #d0a95f;
     --line: #2c2c2c;
   }
   * { box-sizing: border-box; }
@@ -26,51 +27,29 @@
     font-size: 18px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
-    height: 100dvh;
     overflow: hidden;
   }
-  /* ---------- Top viewport: dialogue ---------- */
-  #transcriptWrap {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  main { max-width: 720px; margin: 0 auto; padding: 26px 20px 40px; }
-  .turn {
-    margin: 0;
-    padding: 5px 12px;
-    border-radius: 8px;
-    transition: background 0.35s ease, box-shadow 0.35s ease;
-  }
-  /* Speaker colors. Transcript labels: Woman speaks first (s:0), Man second (s:1).
-     Intended scheme: Man = blue, Woman = pink. If listening to the audio shows
-     the transcript labels themselves are reversed, swap the two color values. */
-  .turn.w { color: var(--pink); }
-  .turn.m { color: var(--blue); }
-  .turn.active {
-    background: rgba(122, 184, 255, 0.07);
-    box-shadow: inset 3px 0 0 var(--accent);
-  }
-  .katex { color: inherit; }
-  .katex-display { margin: 0.6em 0; }
-  /* ---------- Middle: controls ---------- */
-  #timeline {
-    flex: 0 0 auto;
-    background: rgba(24, 24, 24, 0.96);
-    border-top: 1px solid var(--line);
+
+  /* ---------- Sticky transport ---------- */
+  #transport {
+    flex: none;
+    background: rgba(18, 18, 18, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
-    padding: 12px 16px;
-    z-index: 5;
+    padding: 10px 16px 12px;
+    z-index: 10;
   }
-  .tl-row {
+  .tr-row {
     max-width: 860px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     gap: 14px;
+    flex-wrap: wrap;
   }
   #playBtn {
     -webkit-appearance: none;
@@ -99,13 +78,21 @@
     color: var(--accent);
     flex: none;
     letter-spacing: 0.04em;
+    min-width: 118px;
   }
   #clock .total { color: var(--dim); }
+  #barWrap {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 160px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+  }
   input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
-    flex: 1;
-    min-width: 60px;
+    width: 100%;
     height: 6px;
     border-radius: 3px;
     background: linear-gradient(to right, var(--accent) var(--fill, 0%), #333 var(--fill, 0%));
@@ -130,54 +117,55 @@
     border: 2px solid #121212;
     box-shadow: 0 0 0 1px var(--accent);
   }
-  /* ---------- Bottom viewport: editorial notes ---------- */
-  #notesWrap {
-    flex: 0 0 34%;
-    min-height: 120px;
-    max-height: 45%;
+  #ticks { position: absolute; inset: 0; pointer-events: none; }
+  .tick {
+    position: absolute;
+    top: 3px;
+    width: 3px;
+    height: 3px;
+    transform: translateX(-50%) rotate(45deg);
+    background: var(--gold);
+    opacity: 0.85;
+  }
+  .tick.past { background: #f0d9a8; }
+  #settings {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--dim);
+    cursor: pointer;
+    user-select: none;
+  }
+  #settings input { accent-color: var(--gold); cursor: pointer; }
+
+  /* ---------- The single document stream ---------- */
+  #doc {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-top: 1px solid var(--line);
-    background: #161616;
   }
-  #notes {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 14px 16px 28px;
-  }
-  #notes h2 {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--dim);
-    font-family: system-ui, sans-serif;
-    margin: 0 0 10px;
-  }
-  .note-card {
-    display: flex;
-    gap: 12px;
-    padding: 10px 12px;
-    margin: 0 0 8px;
+  main { max-width: 720px; margin: 0 auto; padding: 30px 20px 30vh; }
+
+  .turn {
+    margin: 0;
+    padding: 5px 12px;
     border-radius: 8px;
-    border: 1px solid transparent;
-    font-size: 14.5px;
-    line-height: 1.65;
-    color: #b9b6b0;
-    transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+    transition: background 0.35s ease, box-shadow 0.35s ease, opacity 0.5s ease;
+    cursor: pointer;
   }
-  .note-card.active {
-    background: rgba(122, 184, 255, 0.06);
-    border-color: rgba(122, 184, 255, 0.35);
-    color: var(--fg);
+  .turn:hover { background: rgba(255, 255, 255, 0.025); }
+  .turn.w { color: var(--pink); }
+  .turn.m { color: var(--blue); }
+  .turn.active {
+    background: rgba(122, 184, 255, 0.07);
+    box-shadow: inset 3px 0 0 var(--accent);
   }
-  .note-time {
-    flex: none;
-    font-family: "SF Mono", Consolas, Menlo, monospace;
-    font-size: 12px;
-    color: var(--accent);
-    padding-top: 3px;
-  }
+  .katex { color: inherit; }
+  .katex-display { margin: 0.6em 0; }
   code {
     font-family: "SF Mono", Consolas, Menlo, monospace;
     font-size: 0.82em;
@@ -186,32 +174,141 @@
     padding: 1px 5px;
     border-radius: 5px;
   }
-  .note-card .katex { color: inherit; }
-  .note-card .katex-display { margin: 0.5em 0; }
+
+  /* ---------- Editorial notes as annotated asides ---------- */
+  .note {
+    margin: 14px 8px 14px 30px;
+    padding: 11px 14px 12px;
+    border-left: 2px solid #413a2c;
+    border-radius: 0 8px 8px 0;
+    background: #161513;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #b3b0aa;
+    transition: border-color 0.4s ease, background 0.4s ease, opacity 0.5s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+  }
+  .note:hover { border-left-color: #6b5c3a; }
+  .note.active {
+    border-left-color: var(--gold);
+    background: #1b1812;
+    box-shadow: 0 0 24px rgba(208, 169, 95, 0.05);
+    color: var(--fg);
+  }
+  .note.studying {
+    border-left-color: var(--gold);
+    background: #201b12;
+  }
+  .note-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+  }
+  .note-tag {
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    opacity: 0.9;
+  }
+  .note-chip {
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: "SF Mono", Consolas, Menlo, monospace;
+    font-size: 11px;
+    color: var(--gold);
+    background: #241f16;
+    border: 1px solid #332b1d;
+    border-radius: 5px;
+    padding: 1px 7px;
+    cursor: pointer;
+  }
+  .note-chip:hover { border-color: var(--gold); }
+  .note .katex { color: inherit; }
+  .note .katex-display { margin: 0.5em 0; }
+
+  /* Gentle spotlight while playing: narration stays full, page recedes */
+  body.playing .turn:not(.active) { opacity: 0.68; }
+  body.playing .note:not(.active):not(.studying) { opacity: 0.5; }
+
+  /* Study banner (only for the optional pause-at-notes mode) */
+  .study {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(208, 169, 95, 0.35);
+    border-radius: 8px;
+    background: rgba(208, 169, 95, 0.06);
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: #d8c9a4;
+  }
+  .note.studying .study { display: flex; }
+  .study button {
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: "SF Mono", Consolas, Menlo, monospace;
+    font-size: 12px;
+    color: #121008;
+    background: var(--gold);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    flex: none;
+  }
+  .study button:hover { filter: brightness(1.1); }
+
+  /* ---------- Follow pill ---------- */
+  #followPill {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: #0d1420;
+    background: var(--accent);
+    border: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 20;
+  }
+  #followPill.show { display: block; }
 </style>
 </head>
 <body>
 
-<section id="transcriptWrap"><main id="transcript"></main></section>
-
-<div id="timeline">
-  <div class="tl-row">
+<header id="transport">
+  <div class="tr-row">
     <button id="playBtn" aria-label="Play" title="Play / pause (space)">&#9654;</button>
     <span id="clock"><span id="cur">00:00</span> <span class="total" id="total">/ 45:07</span></span>
-    <input type="range" id="scrub" min="0" max="2707" step="1" value="0" aria-label="Dialogue timeline">
+    <div id="barWrap">
+      <input type="range" id="scrub" min="0" max="2707" step="1" value="0" aria-label="Dialogue timeline">
+      <div id="ticks"></div>
+    </div>
+    <label id="settings" title="Pause automatically when the narration reaches an editorial note, and wait for you to resume">
+      <input type="checkbox" id="pauseAtNotes"> pause at notes
+    </label>
   </div>
-  <audio id="audio" src="DeepDive.mp3" preload="metadata"></audio>
-</div>
+</header>
 
-<section id="notesWrap">
-  <div id="notes">
-    <h2>Editorial notes</h2>
-    <div id="noteList"></div>
-  </div>
-</section>
+<section id="doc"><main id="transcript"></main></section>
+
+<button id="followPill">&#9654; Jump to live</button>
+<audio id="audio" src="DeepDive.mp3" preload="metadata"></audio>
 
 <script>
-const TURNS = [{"t":0,"s":0,"x":"Imagine a massive, intricate machine. Every time you drop a number into the top, it spits out a chaotic, wildly unpredictable path."},{"t":7,"s":1,"x":"Right."},{"t":8,"s":0,"x":"It bounces around seemingly at random, defying literally every attempt to track its logic. But if you take that exact same machine, flip it upside down, and run it in reverse,"},{"t":19,"s":1,"x":"it suddenly behaves with absolute, terrifying perfection."},{"t":23,"s":0,"x":"Yes, exactly. It mathematically maps out the entire universe of numbers without a single structural flaw."},{"t":29,"s":1,"x":"It is a profound paradox. Honestly, we are looking at a space where intuition based on sheer volume completely shatters against formal structural limits."},{"t":40,"s":0,"x":"And that brutal collision is the objective of our deep dive today. We are looking directly at the late 2026 landscape of the $3x + 1$ dynamical system."},{"t":49,"s":1,"x":"The Collatz conjecture."},{"t":51,"s":0,"x":"Right. But our mission here is to audit where we actually stand today. We will navigate the critical distinctions between established archival theorems, unrefereed preprints, and machine-verified formalizations,"},{"t":62,"s":1,"x":"cutting through the immense noise of recent claims to isolate the exact mathematical reality."},{"t":68,"s":0,"x":"Exactly. We aren't here to rehash the history or the elementary rules of the map. You already know the territory. We are going straight into the structural limits of what has actually been proven."},{"t":78,"s":1,"x":"To do that, um, we have to ground ourselves in the defining tension of the problem. We need to look at what the mathematical community calls the sublinear trap."},{"t":87,"s":0,"x":"The sublinear trap."},{"t":88,"s":1,"x":"Yeah. Let's start with the inverse tree: the set of positive integers that we mathematically know for a certainty eventually reach the trivial cycle of $\\{1, 4, 2\\}$."},{"t":99,"s":0,"x":"Okay."},{"t":101,"s":1,"x":"Let's assign a counting function to this, which we call $\\pi(x)$. This function's only job is to count how many of those proven integers exist up to a specific arbitrary cutoff value on the number line, which we'll just call $x$."},{"t":114,"s":0,"x":"So we are just tallying up the successful numbers as we move outward toward infinity."},{"t":119,"s":1,"x":"Precisely. Now imagine a hypothetical scenario where we prove that this counting function $\\pi(x)$ grows at a polynomial rate of $x^{0.9999}$."},{"t":131,"s":0,"x":"Oh, wow."},{"t":132,"s":1,"x":"Right. In practical computational terms, that implies that as you look at larger and larger expanses of the number line, the sheer quantity of numbers you have proven to reach $1$ is astronomical."},{"t":143,"s":0,"x":"It looks, for all intents and purposes, like you have captured almost everything."},{"t":148,"s":1,"x":"Exactly."},{"t":149,"s":0,"x":"Okay, let's unpack this, because an exponent of $0.9999$ feels like a victory."},{"t":154,"s":1,"x":"It does. "},{"t":155,"s":0,"x":"It's so incredibly close to $1$. But when we transition from just counting the raw growth to calculating the lower natural density, the entire picture flips on its head."},{"t":165,"s":1,"x":"It really does. The lower natural density of a set of integers is mathematically defined as the limit inferior as $x$ approaches infinity of that counting function $\\pi(x)$ divided by $x$ itself."},{"t":177,"s":0,"x":"Hold on, let me translate limit inferior for a second for everyone. We are essentially taking our massive set of proven numbers and dividing it by the total sequence of all positive integers up to that point, right?"},{"t":189,"s":1,"x":"Right."},{"t":189,"s":0,"x":"We're asking for the true rock-bottom, guaranteed mathematical proportion over the long haul."},{"t":195,"s":1,"x":"And if your growth bound is strictly sublinear, meaning the exponent is any number strictly less than $1$—even $0.9999$—then your implied lower density bound evaluates to exactly zero."},{"t":206,"s":0,"x":"Zero."},{"t":207,"s":1,"x":"Absolute zero. The limit as $x$ approaches infinity of $x^{0.9999} / x$ is the same as the limit of $1 / x^{0.0001}$ *(Editorial note: The spoken audio said \"$x^{0.1}$\", but $1 - 0.9999 = 0.0001$; in either case, the denominator diverges to infinity, crushing the ratio to zero)*."},{"t":219,"s":0,"x":"Right."},{"t":220,"s":1,"x":"And as $x$ goes to infinity, the denominator grows without bound, meaning that fraction goes to zero."},{"t":226,"s":0,"x":"It's like filling a bucket with a hose, but the bucket's walls are expanding faster than the water flows in."},{"t":232,"s":1,"x":"That's a great way to put it."},{"t":233,"s":0,"x":"No matter how many gallons you have, the bucket is functionally empty. Even with that massive exponent, the set of numbers you've proved steadily thins out relative to the sheer size of the number line. "},{"t":244,"s":1,"x":"It remains mathematically compatible with a natural density of zero."},{"t":248,"s":0,"x":"That is the sublinear trap in a nutshell. And because bottom-up counting arguments so easily fall victim to this dilution, the earliest systematic line of attack in the literature sought to bypass the concept of density entirely."},{"t":261,"s":1,"x":"The strategy was to move top-down."},{"t":263,"s":0,"x":"Right. If you can prove that non-trivial periodic orbits—meaning any cycles other than the trivial $1 \\to 4 \\to 2$ loop—cannot possibly exist, you fundamentally alter the landscape."},{"t":276,"s":1,"x":"Because if you can definitively eliminate the existence of any other loops, you strip the dynamical system of its alternative attractors."},{"t":283,"s":0,"x":"But I'm looking at the notes here, and doing that requires locking the dynamics into a really rigid algebraic cage."},{"t":291,"s":1,"x":"Yeah, it does. To set that trap, researchers focus on the accelerated Syracuse map."},{"t":295,"s":0,"x":"The accelerated map."},{"t":297,"s":1,"x":"Yes, which acts strictly on the odd positive integers. The map $T(n)$ multiplies an odd number by $3$, adds $1$, and then divides out every single factor of $2$ in one massive accelerated step until you land on the very next odd integer."},{"t":313,"s":0,"x":"So we are leaping directly from odd number to odd number, totally compressing all the intermediate even steps into a single operation."},{"t":321,"s":1,"x":"Precisely. Now suppose a hypothetical non-trivial cycle actually exists out there. It would consist of $k$ odd steps, and across that entire cycle, there would be a total of capital $K$ divisions by $2$."},{"t":335,"s":0,"x":"Okay, got it."},{"t":336,"s":1,"x":"If you track the algebra of that loop, it forces an exact, inescapable identity on the starting element of the cycle, which we will call $n_0$."},{"t":347,"s":0,"x":"I'm looking at this exact algebraic identity in the source material, and it looks like a dense wall of algebra."},{"t":353,"s":1,"x":"It's intimidating."},{"t":354,"s":0,"x":"It says $n_0$ multiplied by the quantity $(2^K - 3^k)$, and that is supposed to exactly equal a very specific summation on the right side."},{"t":370,"s":1,"x":"Right."},{"t":371,"s":0,"x":"What is this equation actually forcing the numbers to do?"},{"t":374,"s":1,"x":"Think of it as a structural mandate. The right side of that equation is a summation built entirely out of positive integers—specifically, powers of $3$ and powers of $2$ added together based on the cumulative count of divisions at each step."},{"t":388,"s":0,"x":"Okay."},{"t":389,"s":1,"x":"Because you are adding positive integers, the entire right side of the equation is strictly positive."},{"t":395,"s":0,"x":"I see where this is going. If the right side is strictly positive, the left side has to be strictly positive to maintain the equality."},{"t":401,"s":1,"x":"Exactly."},{"t":402,"s":0,"x":"And since our starting element $n_0$ is a positive integer, the coefficient it is multiplied by must also be positive. "},{"t":410,"s":1,"x":"Therefore, $2^K - 3^k$ must be greater than zero."},{"t":417,"s":0,"x":"Which means $2^K$ must be strictly greater than $3^k$."},{"t":423,"s":1,"x":"Which locks any hypothetical cycle into what the literature calls the supercritical regime."},{"t":428,"s":0,"x":"The supercritical regime."},{"t":431,"s":1,"x":"Yeah. If you take the base-2 logarithm of both sides of that inequality, you find that the ratio of total divisions to odd steps—that is, capital $K$ divided by lowercase $k$—must strictly exceed the base-2 logarithm of $3$."},{"t":445,"s":0,"x":"And the base-2 log of $3$ is roughly $1.58496$."},{"t":450,"s":1,"x":"Yes."},{"t":451,"s":0,"x":"So you are saying any non-trivial cycle in this entire dynamical system is instantly forced to obey this strict division-to-step ratio."},{"t":460,"s":1,"x":"It has to."},{"t":461,"s":0,"x":"It can't just be any loop; it has to have a very specific density of even to odd steps."},{"t":466,"s":1,"x":"And from that exact algebraic identity, the mathematical community developed a highly sophisticated three-part analytical framework to hunt down and exclude these hypothetical cycles."},{"t":475,"s":0,"x":"Okay. What's the first part?"},{"t":476,"s":1,"x":"The first prong is Diophantine analysis,"},{"t":479,"s":0,"x":"which treats that algebraic identity as a discrete exact lock. But how do they actually pick the lock?"},{"t":486,"s":1,"x":"By fixing a specific combinatorial sequence of division exponents, you basically tell the system, \"let's test this exact specific pattern of odd and even parities.\""},{"t":497,"s":0,"x":"Okay."},{"t":498,"s":1,"x":"Once you fix that sequence, all the coefficients in your summation are totally determined. The problem then reduces to a pure Diophantine question: does this specific summation evaluate to an exact integer multiple of that coefficient on the left?"},{"t":514,"s":0,"x":"But the sources are very clear about the immediate brick wall this approach hits. It's the combinatorial explosion of parity sequences."},{"t":521,"s":1,"x":"Yeah, the complexity blows out."},{"t":523,"s":0,"x":"It's like trying to crack a padlock, but every time you add a single step to your hypothetical cycle, the padlock adds an exponentially larger number of new dials."},{"t":532,"s":1,"x":"It's a perfect analogy."},{"t":533,"s":0,"x":"You cannot brute-force test every single discrete lock because the universe of possible parity arrangements grows too fast,"},{"t":540,"s":1,"x":"which forces the methodology to shift domains. Unable to win in the discrete integer realm, the second prong of the framework shifts the battleground into continuous real space."},{"t":550,"s":0,"x":"Continuous real space."},{"t":551,"s":1,"x":"Yeah. This is the Archimedean bounds approach."},{"t":554,"s":0,"x":"By taking logarithms, you convert that rigid exact cycle identity into an approximate equality concerning real magnitudes."},{"t":561,"s":1,"x":"Exactly."},{"t":562,"s":0,"x":"And this introduces a concept the literature denotes as $\\Lambda$, the residual gap."},{"t":567,"s":1,"x":"$\\Lambda$ is defined as capital $K \\ln 2 - k \\ln 3$."},{"t":574,"s":0,"x":"Okay."},{"t":575,"s":1,"x":"Think of it as a measure of the discrepancy between the powers of $2$ and $3$ in our supercritical regime. Because we already established that $2^K > 3^k$, we know that $\\Lambda$ must be strictly positive."},{"t":589,"s":0,"x":"Okay, let's look at the mechanics of this. How does this gap, this $\\Lambda$, actually help us kill off cycles?"},{"t":595,"s":1,"x":"Because the summation on the right side of our cycle identity is mathematically bounded by a geometric series, we can use $\\Lambda$ to constrain the absolute minimal element of any hypothetical cycle, which we call $n_{\\min}$."},{"t":607,"s":0,"x":"Right."},{"t":609,"s":1,"x":"The elementary Archimedean inequality states that $n_{\\min}$ must be strictly less than the number of odd steps $k / 3^\\Lambda$ *(Editorial note: In classical cycle papers such as Simons and de Weger, the Archimedean bound is of the form $n_{\\min} < k / (e^\\Lambda - 1) \\approx k / \\Lambda$; the text $k / 3^\\Lambda$ appears directly in Hallqvist's survey text, but in both formulations an effective lower bound on $\\Lambda$ yields an upper bound on $n_{\\min}$)*."},{"t":618,"s":0,"x":"Well, let me visualize that fraction. If your residual gap $\\Lambda$ is a relatively large number, then your denominator $3^\\Lambda$ becomes absolutely massive."},{"t":628,"s":1,"x":"Yes."},{"t":629,"s":0,"x":"And if you are dividing by a massive number, your ceiling for the minimal element is forced to be very small."},{"t":635,"s":1,"x":"And we already know, thanks to massive computational brute-force searches, that there are absolutely no non-trivial cycles below approximately $2^{68}$."},{"t":644,"s":0,"x":"Oh, wow. So if a cycle has a large residual gap, the mathematics forces its smallest element to be tiny, well below that $2^{68}$ threshold."},{"t":654,"s":1,"x":"Exactly."},{"t":655,"s":0,"x":"But we've checked everything below that threshold, and it's empty. Therefore, any cycle with a substantial residual gap is definitively mathematically ruled out. It just can't exist."},{"t":665,"s":1,"x":"The only way a cycle could theoretically survive and hide in the unsearched wilderness above $2^{68}$ is if that residual gap $\\Lambda$ were infinitesimally small."},{"t":675,"s":0,"x":"Meaning the powers of $2$ and the powers of $3$ would have to approximate each other with an almost unnatural, microscopic precision just to squeeze into that tiny mathematical blind spot."},{"t":686,"s":1,"x":"Which brings us to the third prong of the analytical framework to close that blind spot: Baker-type bounds, specifically the theory of linear forms in logarithms."},{"t":695,"s":0,"x":"I know Alan Baker won a Fields Medal for this kind of work. What does his theory actually do to our gap?"},{"t":701,"s":1,"x":"Baker essentially proved that non-zero linear combinations of logarithms of algebraic numbers—which is exactly what our $\\Lambda$ is, $K \\ln 2 - k \\ln 3$—cannot just slide arbitrarily close to zero without facing a consequence."},{"t":715,"s":0,"x":"A consequence."},{"t":717,"s":1,"x":"Yes, there is a fundamental, quantifiable mathematical repulsion. Explicit estimates developed later by Laurent, Mignotte, and Nesterenko provide a concrete floor for this repulsion."},{"t":728,"s":0,"x":"Okay."},{"t":729,"s":1,"x":"They established that the natural log of $\\Lambda$ must be greater than or equal to a negative constant $C$ multiplied by the square of the natural log of capital $K$."},{"t":739,"s":0,"x":"Okay, so let me put this three-part machine together. The Archimedean inequality puts a ceiling on how large the cycle's minimal element can be based on the gap $\\Lambda$."},{"t":748,"s":1,"x":"Right."},{"t":749,"s":0,"x":"But the Baker-type bounds put a hard floor on how small that gap can actually get."},{"t":754,"s":1,"x":"By substituting the Baker floor back into the Archimedean ceiling, you generate a highly effective, explicit upper bound on the smallest element of any hypothetical cycle of a given length."},{"t":765,"s":0,"x":"And researchers have been turning the crank on this machine for decades. I mean, R. P. Steiner used it alongside lattice-basis reduction to prove the only 1-cycle is the trivial cycle."},{"t":774,"s":1,"x":"Yes."},{"t":775,"s":0,"x":"Simons and de Weger used it to eliminate cycles with up to $68$ local minima. And looking at the late 2026 landscape, we see that Hercher extended this exclusion to cycles with up to $91$ local minima."},{"t":788,"s":1,"x":"But this is a vital distinction we must make: cycle exclusion is not global resolution."},{"t":793,"s":0,"x":"It's not."},{"t":794,"s":1,"x":"Hercher's results, while computationally and analytically massive, still heavily rely on the limits of brute-force verification."},{"t":801,"s":0,"x":"Wait, if this three-part machine works so well, why can't we just run it to infinity and kill all the cycles?"},{"t":808,"s":1,"x":"Because the entire methodology hits a structural brick wall when we consider cycles where the combinatorial complexity—the number of local minima, which we denote as $m$—grows linearly with the overall cycle length."},{"t":820,"s":0,"x":"So as the structure of the hypothetical cycle gets more complex, the multidimensional Baker bounds start to break down."},{"t":827,"s":1,"x":"They do. The repulsion estimates lose their sharpness, the floor provided by Baker drops, the ceiling provided by Archimedes rises, and the gap between them widens to a point where they no longer force a mathematical contradiction against our computationally verified range of $2^{68}$."},{"t":843,"s":0,"x":"It's like having a vice grip that works perfectly on small objects, but if you try to clamp it around something incredibly wide, the threads strip."},{"t":851,"s":1,"x":"That's a great way to put it."},{"t":852,"s":0,"x":"The established Diophantine and Baker-type method simply cannot establish that cycles of arbitrary complexity are impossible. The top-down strategy successfully clears out a massive amount of underbrush, but the canopy—periodic orbits of unrestricted combinatorial complexity—remains theoretically wide open."},{"t":870,"s":1,"x":"Which perfectly explains the historical pivot in the literature. Unable to definitively eliminate cycles of arbitrary complexity from the top down, the field simultaneously developed a bottom-up strategy."},{"t":882,"s":0,"x":"Okay, the bottom-up strategy."},{"t":884,"s":1,"x":"Yeah. If we can't prove that alternative cycles don't exist, let's try to prove that the vast majority of numbers flow into the trivial cycle we do know about. And this takes us right back to the inverse branching tree descending from $1$. We are looking for lower bounds on that counting function $\\pi(x)$. This program advanced incrementally over decades. Crandall first established a polynomial growth bound."},{"t":905,"s":0,"x":"Right."},{"t":906,"s":1,"x":"Krasikov introduced difference inequalities yielding an exponent of $0.43$. Wirsching pushed that to $0.48$."},{"t":914,"s":0,"x":"Wow."},{"t":915,"s":1,"x":"Applegate and Lagarias utilized computer-assisted tree search to reach $0.65$, and later applied nonlinear programming to Krasikov's inequalities to hit $0.81$."},{"t":925,"s":0,"x":"Which brings us to the archival gold standard: the 2003 theorem of Krasikov and Lagarias."},{"t":930,"s":1,"x":"Yes, this is the peer-reviewed benchmark against which all modern claims must be measured. Their theorem establishes that for all sufficiently large $x$, the counting function $\\pi(x)$ is greater than or equal to $x^{0.84}$."},{"t":948,"s":0,"x":"And the mechanism they used to achieve this $0.84$ bound is mathematically fascinating. They had to balance the generating functions of the inverse map."},{"t":958,"s":1,"x":"Balance them."},{"t":960,"s":0,"x":"Yes, because when you run the Collatz map in reverse, you are dealing with two highly antagonistic operations."},{"t":967,"s":1,"x":"Let's visualize that tug-of-war. What are the two forces?"},{"t":970,"s":0,"x":"On one hand, you have the inverse even step mapping $n$ to $2n$. This is explosive. It creates a single, rapidly growing, unbranching lineage."},{"t":980,"s":1,"x":"It's a superhighway. You just keep doubling and doubling and shooting off into massive numbers very quickly."},{"t":984,"s":0,"x":"Fighting against that explosive growth, you have the inverse odd step mapping $n$ to $(n - 1) / 3$."},{"t":992,"s":1,"x":"Okay."},{"t":994,"s":0,"x":"This step is contracting, and it is what actually creates the branching structure of the tree, giving it width. The $0.84$ exponent was derived by masterfully balancing these explosive and contracting forces within a highly complex system of difference inequalities."},{"t":1010,"s":1,"x":"But as we audit the late 2026 landscape, we have to look at the recent unrefereed preprints attempting to push past this $0.84$ benchmark."},{"t":1018,"s":0,"x":"Right."},{"t":1018,"s":1,"x":"And these recent attempts perfectly illustrate just how mathematically fragile these inverse tree models actually are."},{"t":1025,"s":0,"x":"A perfect example is the December 2025 preprint by Chao Liu titled *Counting the Collatz numbers*."},{"t":1031,"s":1,"x":"Yes, I saw this one."},{"t":1033,"s":0,"x":"In the initial version of that preprint, Liu announced a massive leap: an exponent of $0.946$."},{"t":1040,"s":1,"x":"Which would have been incredible, but we have to explicitly caution you, the listener, regarding these unrefereed claims. What happened when the mathematical community actually looked under the hood of Liu's work?"},{"t":1053,"s":0,"x":"Critical topological dependency errors were revealed."},{"t":1056,"s":1,"x":"What exactly does a topological dependency error look like in an inverse tree?"},{"t":1061,"s":0,"x":"In this specific context, it involves overcounting branches. The error stemmed from incorrectly treating certain branches as independent when in reality they relied on consecutive odd inverse operations. And the fundamental arithmetic structure of the map heavily constrains that. When you run the map in reverse, applying an odd inverse step produces a number that is congruent to zero modulo 3 *(Editorial note: An inverse odd step $(n-1)/3$ does not always produce a multiple of $3$; it can produce any integer parity. The modular dead end occurs specifically when an inverse odd step lands on a multiple of $3$, because that branch cannot have an odd predecessor, preventing consecutive odd inverses)*. So it produces a multiple of three."},{"t":1086,"s":1,"x":"Yes, but a number that is a multiple of three cannot possibly have an odd predecessor."},{"t":1092,"s":0,"x":"Wait, really? It's like mapping a city's roads but forgetting some are one-way streets or dead ends, so your algorithm starts counting theoretical routes that cars can't actually drive."},{"t":1102,"s":1,"x":"Exactly."},{"t":1103,"s":0,"x":"If your tree model doesn't mathematically account for that zero modulo 3 dead end, you start counting phantom branches that simply do not exist in the arithmetic reality. And to his credit, once this was pointed out, Liu issued a second version of the preprint, retracting the $0.946$ figure."},{"t":1119,"s":1,"x":"Oh, he retracted it."},{"t":1120,"s":0,"x":"Yes. The revised exponent in version two is $0.3227$."},{"t":1125,"s":1,"x":"Wow. Let that sink in. It falls from a purported breakthrough of $0.946$ all the way down to $0.3227$, which is drastically below the 2003 baseline of $0.84$."},{"t":1138,"s":0,"x":"It is a stark reminder of why review and community scrutiny are absolutely non-negotiable in this field."},{"t":1145,"s":1,"x":"Right. We also have L. Mazur's July 2026 manuscript to consider in this category. This preprint claims a Lean-formalized bound of $\\pi(x)$ growing on the order of $x^{0.90}$, specifically for predecessor sets of targets not divisible by $3$."},{"t":1162,"s":0,"x":"Well, let's play devil's advocate for a second. Let's assume that Mazur's machine-checked proof is entirely structurally sound and eventually passes peer review."},{"t":1170,"s":1,"x":"Okay, let's assume that."},{"t":1171,"s":0,"x":"We are looking at $x^{0.90}$. We have to point out the fundamental mathematical reality here, connecting right back to our baseline at the beginning of the show: we are right back in the sublinear trap."},{"t":1183,"s":1,"x":"Exactly. An exponent of, say, $0.90$ is still strictly sublinear. It is less than $1$. So even if perfectly verified, this bound leaves the lower natural density of the basin of attraction at absolutely zero."},{"t":1199,"s":0,"x":"Yes, we are back in the bucket dilution scenario. Counting growth, no matter how computationally impressive the exponent is, is categorically, mathematically distinct from positive natural density."},{"t":1209,"s":1,"x":"Which means the bottom-up strategy—the inverse tree—while structurally illuminating and yielding these complex difference inequalities, currently leaves us trapped behind that sublinear barrier."},{"t":1220,"s":0,"x":"So if the backward tree traps us in zero density, the natural analytical pivot is to ask what happens when we reverse our perspective."},{"t":1227,"s":1,"x":"Right."},{"t":1228,"s":0,"x":"What happens when we track individual orbits forward in time?"},{"t":1231,"s":1,"x":"If we can't build a tree from the bottom up to capture a positive density, let's just drop points from the top down and prove they all fall."},{"t":1239,"s":0,"x":"This is the transition into forward dynamics."},{"t":1241,"s":1,"x":"The archival foundations of forward descent begin with R. Terras in 1976. Terras proved that the set of positive integers possessing a finite stopping time has a natural density of $1$."},{"t":1252,"s":0,"x":"Let's clarify that term. A finite stopping time just means the orbit eventually hits a value strictly smaller than its starting point."},{"t":1259,"s":1,"x":"Correct."},{"t":1260,"s":0,"x":"It guarantees a single local descent, not that it plummets all the way to $1$."},{"t":1264,"s":1,"x":"Then in 1994, I. Korec strengthened this result. Also measuring in natural density, Korec proved that for almost every integer $n$, the orbit will eventually drop below $n^\\theta$, for any $\\theta$ strictly greater than $\\log 3 / \\log 4$,"},{"t":1280,"s":0,"x":"which is roughly $0.7924$."},{"t":1283,"s":1,"x":"Yes."},{"t":1284,"s":0,"x":"So almost every number drops below its own $0.7924$ power. But we need to be very rigorous here for you, the listener: localized descent, even deep descent below a fractional power, does not equal global convergence."},{"t":1297,"s":1,"x":"Absolutely not."},{"t":1298,"s":0,"x":"Proving that an orbit drops below $n^{0.7924}$ does absolutely nothing to prevent that exact same orbit from bouncing off that temporary floor, subsequently diverging to infinity, or getting permanently trapped in some astronomically large cycle we haven't found yet."},{"t":1312,"s":1,"x":"Descent is not convergence."},{"t":1314,"s":0,"x":"But the forward dynamics program did see a major, highly celebrated breakthrough in 2022. Terence Tao published a theorem in *Forum of Mathematics, Pi*."},{"t":1323,"s":1,"x":"He established that almost all Collatz orbits attain almost bounded values."},{"t":1328,"s":0,"x":"I remember when this paper dropped. It is a monumental piece of mathematics. Tao essentially proved that you can pick a threshold function $f(n)$ that diverges to infinity, and you can make it grow incredibly slowly."},{"t":1340,"s":1,"x":"Right, extremely slowly."},{"t":1342,"s":0,"x":"You could pick the natural log of the natural log of the natural log of $n$—an almost microscopic upward slope—and Tao proved that almost all orbits will eventually drop below that slow-growing threshold."},{"t":1354,"s":1,"x":"However, here is where we must draw a massive, heavily highlighted distinction regarding Tao's theorem. It is a distinction of mathematical measure."},{"t":1363,"s":0,"x":"Okay, what's the distinction?"},{"t":1365,"s":1,"x":"Tao's theorem is established strictly with respect to logarithmic density, denoted in the literature as $d_{\\log}$. It is not a result in natural density."},{"t":1375,"s":0,"x":"We need to make sure you, the listener, grasp just how wide the chasm is between logarithmic density and natural density, because this is where the math gets heavily misinterpreted."},{"t":1384,"s":1,"x":"Very often, yes."},{"t":1386,"s":0,"x":"Think of it like this: if natural density is a purely democratic vote where every single integer gets exactly one equal ballot, logarithmic density is an electoral system where the voting power of larger numbers is aggressively suppressed."},{"t":1399,"s":1,"x":"That analogy perfectly captures the mechanics. In natural density, every integer up to your cutoff $x$ carries a uniform statistical weight of $1$. You just count them, right?"},{"t":1409,"s":0,"x":"Right."},{"t":1410,"s":1,"x":"But in logarithmic density, each integer $n$ is weighted by the fraction $1/n$."},{"t":1416,"s":0,"x":"So the number $10$ gets a voting weight of $1/10$."},{"t":1419,"s":1,"x":"Exactly."},{"t":1420,"s":0,"x":"But the number $1\\text{ million}$ only gets a voting weight of $1/1{,}000{,}000$."},{"t":1423,"s":1,"x":"Exactly."},{"t":1424,"s":0,"x":"The further out you go on the number line, the less the numbers matter to the overall density calculation."},{"t":1429,"s":1,"x":"The formal mathematical definition of the logarithmic density of a set $S$ is the limit as $x$ goes to infinity of the sum of $1/n$ for all $n \\in S$ up to $x$, divided by the harmonic sum up to $x$. And this $1/n$ weighting acts as a massive statistical dampener on the entire system."},{"t":1444,"s":0,"x":"Precisely. Why do you need a dampener?"},{"t":1447,"s":1,"x":"Because it effectively hides chaotic outliers. If there are rare, wildly misbehaving orbits that only appear at incredibly high integers, the $1/n$ weighting crushes their statistical significance, allowing the limit of the calculation to actually stabilize."},{"t":1462,"s":0,"x":"Oh, I see."},{"t":1464,"s":1,"x":"Tao's analytical machinery relies on this: he uses a first-passage random variable associated with the Syracuse dynamics, and that variable only stabilizes under the heavy suppression of the $1/n$ dampener."},{"t":1475,"s":0,"x":"Now just to be thorough, it is true that if a set possesses a well-defined natural density, its logarithmic density will exist and will perfectly equal that natural density."},{"t":1484,"s":1,"x":"That is true."},{"t":1485,"s":0,"x":"But the reverse is absolutely not true."},{"t":1487,"s":1,"x":"It is entirely possible for a set of integers to have a logarithmic density of exactly $1$ while its natural density oscillates wildly indefinitely, never settling on a limit."},{"t":1498,"s":0,"x":"So while Tao's result is a profound achievement in controlling the dynamics under a logarithmic measure, he does not prove natural density descent, nor does he prove eventual convergence to $1$."},{"t":1509,"s":1,"x":"The chasm between logarithmic density and natural density remains uncrossed in the peer-reviewed literature."},{"t":1516,"s":0,"x":"Which leads us directly into the 2026 preprint wave, because crossing this chasm is exactly what recent unrefereed attempts have tried to do."},{"t":1524,"s":1,"x":"We see this explicitly in the manuscripts. L. Mazur has a preprint claiming natural-density-one descent below every diverging threshold within logarithmic time, again accompanied by a Lean formalization."},{"t":1537,"s":0,"x":"Okay."},{"t":1539,"s":1,"x":"Parallel to that, we have I. A. Shaik claiming polylogarithmic descent in natural density with a logarithmic leading time."},{"t":1546,"s":0,"x":"Both of these are highly ambitious attempts to translate the spirit of Tao's almost bounded result out of the suppressed logarithmic measure and into the uniform, unweighted natural density measure."},{"t":1557,"s":1,"x":"Right."},{"t":1558,"s":0,"x":"But again, these are unrefereed claims. And as we move from mere descent to the ultimate prize, the claims get even bolder. The deep dive sources highlight that 2026 also saw preprints claiming actual positive lower natural density for the basin of attraction itself."},{"t":1573,"s":1,"x":"Yes,"},{"t":1574,"s":0,"x":"not just dropping below a log-log threshold, but claims that a strictly positive percentage of all integers unequivocally reach $1$."},{"t":1583,"s":1,"x":"Let's unpack these preprints carefully to see exactly what is being claimed under the hood."},{"t":1587,"s":0,"x":"Let's do it."},{"t":1588,"s":1,"x":"Mazur's work on Proof Atlas claims the existence of an explicit positive constant $c$ and a cutoff $X_0$ such that at least $c X$ integers below every sufficiently large $X$ reach $1$ within $10.46 \\ln n$ ordinary steps—"},{"t":1605,"s":0,"x":"a direct claim of a positive natural density, a linear proportion."},{"t":1609,"s":1,"x":"Yes. And Mazur extended this in a companion preprint to predecessor sets of any target not divisible by $3$."},{"t":1616,"s":0,"x":"Okay, wow."},{"t":1617,"s":1,"x":"Building directly upon Mazur's construction, we have a preprint hosted on the Hexagon network by Kelvin Lau. And we should explicitly note for clarity that Kelvin Lau is a completely different author than Chao Liu, whom we discussed earlier regarding the topological tree errors."},{"t":1632,"s":0,"x":"Different mathematician, different approach entirely."},{"t":1635,"s":1,"x":"Yeah."},{"t":1636,"s":0,"x":"So what is Lau doing?"},{"t":1637,"s":1,"x":"Lau utilizes an automated AI prover to derive an explicit refinement of Mazur's constant. The claim is that for every capital $N$, the number of odd integers below $N$ reach $1$ within $10.46 \\ln n$ steps is at least the floor of $N$ divided by a specific explicit denominator."},{"t":1659,"s":0,"x":"I need to read this denominator out loud from the sources because it is a critical observation regarding the real-world mathematical implications of this claim."},{"t":1666,"s":1,"x":"Go for it."},{"t":1667,"s":0,"x":"The bound claims the number of integers is at least: $$\\left\\lfloor \\frac{N}{2^{2^{2^{163}}}} \\right\\rfloor.$$"},{"t":1675,"s":1,"x":"A triply iterated power of $2$."},{"t":1678,"s":0,"x":"Let's just look at the sheer absurdity of that denominator. $2^{163}$ is already a staggeringly large number. Then you raise $2$ to that power. Then you raise $2$ to that unimaginable power. The denominator is incomprehensibly massive."},{"t":1694,"s":1,"x":"And because the formula takes the floor of the fraction, we have to consider what happens for any value of $N$ that is strictly smaller than that denominator."},{"t":1702,"s":0,"x":"Okay."},{"t":1703,"s":1,"x":"If $N$ is less than $2^{2^{2^{163}}}$, the entire fraction evaluates to less than $1$. And the floor function crushes any decimal less than $1$ down to exactly zero."},{"t":1715,"s":0,"x":"Exactly. If $N$ is any number that can physically be written down, computed, or even conceptualized in our physical universe, the formula guarantees precisely zero numbers reach $1$."},{"t":1725,"s":1,"x":"It evaluates to zero."},{"t":1726,"s":0,"x":"It only begins to claim a positive quantity of numbers once $N$ surpasses that triply iterated power. It is a purely asymptotic bound."},{"t":1735,"s":1,"x":"It guarantees a positive density at infinity, but it provides zero structural information for the observable number line."},{"t":1743,"s":0,"x":"Right."},{"t":1744,"s":1,"x":"And once again, a necessary status check: none of these claims of positive natural density have passed peer review. They remain provisional artifacts under community scrutiny, deeply reliant on AI theorem provers."},{"t":1758,"s":0,"x":"So if global convergence in natural density is currently mired in unrefereed, purely asymptotic preprint claims, where is the solid mathematical ground in 2026?"},{"t":1769,"s":1,"x":"The sources shift our focus here to a mathematically distinct 2026 formalization."},{"t":1774,"s":0,"x":"Okay, what is it?"},{"t":1775,"s":1,"x":"This one looks away from global density entirely and looks directly at modular arithmetic."},{"t":1782,"s":0,"x":"We are talking about André Hallqvist's formalization titled *Effective Remainder Everywhere*, hosted on GitHub and Zenodo."},{"t":1789,"s":1,"x":"Yes."},{"t":1790,"s":0,"x":"It is vital to state up front that just like the others, this is an unrefereed, AI-assisted preprint accompanied by a Lean 4.35 formalization. It is not a peer-reviewed publication."},{"t":1802,"s":1,"x":"But the mathematical claim it makes is structurally fascinating because it completely sidesteps the chaos of forward dynamics."},{"t":1811,"s":0,"x":"But before we get into the mechanics of how it works, I need to set a hard, unbreakable boundary right now for you, the listener: this theorem is not a proof of the Collatz conjecture."},{"t":1821,"s":1,"x":"It absolutely is not. And the ultimate intuition pump to understand why modular reachability does not equal global convergence is to look at a parallel dynamical system."},{"t":1831,"s":0,"x":"A parallel system."},{"t":1832,"s":1,"x":"Yes. Hallqvist's exact same proof machinery applies to the generalized $5x + 1$ problem."},{"t":1840,"s":0,"x":"Let's pause and explain the $5x + 1$ system for a second. It's similar to Collatz, but if a number is odd, you multiply by $5$ and add $1$. If it's even, you divide by $2$."},{"t":1850,"s":1,"x":"Right. And in the $5x + 1$ system, the global conjecture—the idea that all numbers eventually reach $1$—is definitively, provably false."},{"t":1859,"s":0,"x":"Oh, it's false."},{"t":1861,"s":1,"x":"Yes, we know for a mathematical fact that there are at least three distinct, disjoint cycles: one has a minimal odd element of $1$, another has a minimal element of $13$, and another has $17$. Furthermore, empirical evidence heavily suggests there are orbits that simply diverge to infinity, never cycling and never returning."},{"t":1882,"s":0,"x":"So the $5x + 1$ system is a fractured landscape: multiple attractors, divergent paths. It is the exact antithesis of universal convergence."},{"t":1892,"s":1,"x":"Yet Hallqvist's modular reachability theorem holds equally true for the $5x + 1$ map."},{"t":1897,"s":0,"x":"Really?"},{"t":1897,"s":1,"x":"Yes. It yields an analogous bound—a ceiling taking the form of $2^{2^{105 N^5}}$ *(Editorial note: The spoken audio phonetically slurred this as \"$2$ to the $25 N^5$\", but the formalized bound in Hallqvist's generalized framework is $2^{2^{105 N^5}}$)*—but the structural guarantee remains identical."},{"t":1909,"s":0,"x":"Because the theorem functions in a system known to contain multiple disjoint cycles and divergent trajectories, it is mathematically agnostic to whether the orbits globally converge to $1$."},{"t":1921,"s":1,"x":"It doesn't care where the orbits eventually end up in the forward direction; it only cares about the structure of the backward tree."},{"t":1927,"s":0,"x":"Oh, I see."},{"t":1928,"s":1,"x":"It proves that if you trace the predecessor tree backward from a valid target, that tree will eventually branch out and hit every single modular residue class."},{"t":1937,"s":0,"x":"The formal theorem states: for every modulus $N \\ge 1$, every natural number $w$ not divisible by $3$, and every residue class $r \\pmod N$, there exists an integer predecessor $n \\equiv r \\pmod N$ such that $n$ eventually reaches $w$."},{"t":1957,"s":1,"x":"There's a crucial arithmetic restriction in that statement that we need to highlight: the target root $w$ cannot be divisible by $3$."},{"t":1966,"s":0,"x":"Why?"},{"t":1967,"s":1,"x":"This comes down to an elementary structural constraint of the Collatz map itself. If you take any integer $m$ and apply an odd Collatz step, you calculate $3m + 1$."},{"t":1977,"s":0,"x":"Right."},{"t":1977,"s":1,"x":"That result, $3m + 1$, is congruent to $1 \\pmod 3$."},{"t":1983,"s":0,"x":"It leaves a remainder of $1$."},{"t":1984,"s":1,"x":"Exactly. Always. Therefore, an odd step can never produce a multiple of $3$. Multiples of $3$ simply have no odd predecessors. The only way to reach a multiple of $3$ is by dividing an even number by $2$."},{"t":1996,"s":0,"x":"So if you plant your target root $w$ at a multiple of $3$—say, the number $9$—and try to build the inverse tree backward, you can only ever multiply by $2$:"},{"t":2006,"s":1,"x":"Right."},{"t":2007,"s":0,"x":"$9 \\to 18 \\to 36 \\to 72$. You are permanently trapped in a single, unbranching lineage of doublings, all of which are multiples of $3$. You can never branch out to reach numbers that have remainders of $1$ or $2 \\pmod 3$."},{"t":2023,"s":1,"x":"Which is precisely why Hallqvist restricts the target $w$ to numbers not divisible by $3$."},{"t":2028,"s":0,"x":"But to be crystal clear on the directionality here: the target $w$ cannot be a multiple of $3$, but the predecessors absolutely can be."},{"t":2037,"s":1,"x":"That is a vital distinction. The restriction applies only to the root of the tree; the branches can go anywhere. For example, $117$ is a multiple of $3$, and it is a valid predecessor of $11$: $$117 \\to 352 \\to 176 \\to 88 \\to 44 \\to 22 \\to 11.$$"},{"t":2050,"s":0,"x":"Okay, I see."},{"t":2051,"s":1,"x":"Hallqvist proves we can find predecessors in every single residue class modulo $N$, including the zero modulo 3 class, as long as the root target $w$ isn't divisible by $3$."},{"t":2063,"s":0,"x":"So how does Hallqvist actually prove this universal modular reachability? The sources describe the architecture of the proof as a meet-in-the-middle approach."},{"t":2071,"s":1,"x":"It's a brilliant structural maneuver, conceptually similar to how computer scientists solve massive decision trees by connecting forward searches with backward databases."},{"t":2082,"s":0,"x":"Right."},{"t":2083,"s":1,"x":"Hallqvist avoids the chaotic, unpredictable trajectories of long forward orbits by factoring the modulus $N$. He breaks $N$ down into its prime components: $$N = 2^\\alpha \\cdot 3^b \\cdot M,$$"},{"t":2097,"s":0,"x":"where $M$ represents the coprime remainder, meaning $M$ shares no common factors with $2$ or $3$."},{"t":2105,"s":1,"x":"It's like navigating a grid city: the twos and threes are the avenues, and $M$ represents all the cross streets."},{"t":2112,"s":0,"x":"By breaking the modulus apart, you can conquer the congruences separately. Moving forward from the candidate residue class $r$, Hallqvist uses deterministic parity words—specific sequences of odd and even steps—to clear out the divisibility constraints imposed by the 2-adic and 3-adic components, $2^\\alpha$ and $3^b$."},{"t":2134,"s":1,"x":"You've forced the orbit through a specific sequence of operations that perfectly align the twos and threes. You navigate the avenues."},{"t":2141,"s":0,"x":"Meanwhile, moving backward from the target root $w$, the backward closure is analyzed not over the standard integers, but over the finite ring $\\mathbb{Z}/M\\mathbb{Z}$."},{"t":2152,"s":1,"x":"And within this finite ring, because $M$ is coprime to $2$ and $3$, multiplication by $2$ and the odd inverse operation are well-defined invertible affine transformations."},{"t":2163,"s":0,"x":"They are reliable geometric transformations within that finite modular space. You are navigating the cross streets."},{"t":2172,"s":1,"x":"And by utilizing modular lifting and the Chinese Remainder Theorem, Hallqvist proves that the forward path clearing the avenues and the backward path navigating the cross streets must necessarily intersect in the middle."},{"t":2185,"s":0,"x":"That's a mathematical pincer movement, and it guarantees reachability across all modular classes simultaneously."},{"t":2191,"s":1,"x":"Yes, it does."},{"t":2193,"s":0,"x":"But because it's a universal guarantee—because it promises to hit every single residue class, no matter the modulus—the resulting effective bound, the theoretical ceiling, is absolutely staggering."},{"t":2205,"s":1,"x":"The theorem guarantees that the predecessor $n$ will be bounded by: $$n \\le w \\cdot 2^{2^{48 N^4}}.$$"},{"t":2218,"s":0,"x":"We have to marvel at the sheer scale of this theoretical ceiling. Hallqvist provides a toy example in the repository to illustrate this. Let's walk through it."},{"t":2226,"s":1,"x":"Okay."},{"t":2227,"s":0,"x":"If you set the modulus $N = 7$ and your target $w = 11$, and you're looking for a predecessor in the zero modulo 7 residue class:"},{"t":2236,"s":1,"x":"the actual, real-world minimal witness for those parameters is simply the number $7$. The number $7$ is congruent to $0 \\pmod 7$, and in two steps, $7 \\to 22 \\to 11$, it reaches the target."},{"t":2251,"s":0,"x":"So the actual answer is $7$. It's right there."},{"t":2253,"s":1,"x":"Right."},{"t":2254,"s":0,"x":"But if you plug $N = 7$ and $w = 11$ into the ceiling formula, you evaluate: $$11 \\cdot 2^{2^{48 \\cdot 7^4}} = 11 \\cdot 2^{2^{115{,}248}}.$$"},{"t":2266,"s":1,"x":"which simplifies to $11 \\cdot 2^{2^{115{,}248}}$."},{"t":2274,"s":0,"x":"And when you convert that power tower into base 10, you get approximately: $$10^{10^{34{,}692.58}}.$$"},{"t":2283,"s":1,"x":"It is an astronomically large number."},{"t":2286,"s":0,"x":"Just to put that in perspective for the listener: a googol is a $1$ with $100$ zeros, $10^{100}$. A googolplex is $10^{\\text{googol}}$, or $10^{10^{100}}$."},{"t":2297,"s":1,"x":"Right."},{"t":2297,"s":0,"x":"A googolplex has a mere $100$ digits in its highest exponent. Hallqvist's bound has nearly $35{,}000$ digits in its highest exponent. It absolutely dwarfs a googolplex."},{"t":2309,"s":1,"x":"Which perfectly illustrates the critical distinction between effective bounds and practical computation. Hallqvist's bound is not an estimate of the smallest predecessor."},{"t":2319,"s":0,"x":"No, definitely not."},{"t":2320,"s":1,"x":"It is not a practical search range; no computer in the universe could search up to that number."},{"t":2328,"s":0,"x":"Its significance is entirely theoretical: it is a mathematical guarantee that infinite modular blind spots are impossible. It establishes a finite, explicit ceiling, proving that local congruence obstructions simply do not exist in the backward tree."},{"t":2344,"s":1,"x":"And this brings us to a defining feature of this entire late 2026 mathematical landscape:"},{"t":2349,"s":0,"x":"What's that?"},{"t":2350,"s":1,"x":"whether we are discussing Mazur's density claims on Proof Atlas, Kelvin Lau's Hexagon preprint, or Hallqvist's *Effective Remainder Everywhere*, there is a heavy, almost pervasive reliance on automated AI provers and interactive theorem provers like Lean 4.35."},{"t":2367,"s":0,"x":"This requires us to pause and really understand the epistemology of 2026, because this is fascinating: what does a machine-checked proof actually mean for human knowledge?"},{"t":2379,"s":1,"x":"On a technical level, it means strict toolchain dependency. Hallqvist's formalization, for example, strictly requires Lean 4.35 and relies exclusively on its core library; it will fail to compile on older versions like Lean 4.15."},{"t":2392,"s":0,"x":"Right."},{"t":2394,"s":1,"x":"But the philosophical shift is much deeper and much more significant. We have to distinguish between syntactic validity and semantic reality."},{"t":2403,"s":0,"x":"Let's break those terms down."},{"t":2404,"s":1,"x":"Syntactic validity is what the proof assistant provides. A system like Lean checks formal deduction. It guarantees internal logical consistency starting from core encoded axioms."},{"t":2415,"s":0,"x":"Okay."},{"t":2416,"s":1,"x":"In Lean, these are foundational rules like `propext`, `Classical.choice`, and `Quot.sound`."},{"t":2422,"s":0,"x":"Let me stop you there and translate those axioms for the listener, because they sound intimidating, but they are just the basic rules of the game."},{"t":2428,"s":1,"x":"Go ahead."},{"t":2429,"s":0,"x":"`propext`—propositional extensionality—basically tells the machine that if two statements mathematically prove each other, they can be treated as identical."},{"t":2437,"s":1,"x":"Yes."},{"t":2438,"s":0,"x":"`Classical.choice` is the rule that says if you have a non-empty collection of items, you can theoretically pick an item out of it, even if you don't have an explicit algorithm to find it. And `Quot.sound`—quotient soundness—just means if you group things together based on an equivalence relation, the machine respects that grouping when checking for equality."},{"t":2459,"s":1,"x":"Exactly. When Lean verifies a proof using those axioms, it certifies with absolute mechanical certainty that there are no hidden gaps in the deductive logic."},{"t":2469,"s":0,"x":"Right."},{"t":2470,"s":1,"x":"Step A logically leads to step B, all the way to the conclusion."},{"t":2475,"s":0,"x":"Which is incredible: we have a machine that can perfectly check the grammar and logic of a mathematical argument."},{"t":2479,"s":1,"x":"Yes,"},{"t":2480,"s":0,"x":"but this raises a huge philosophical question: if an AI writes the formal code, and another AI is used to explain or summarize that code, who verifies that the formal code actually represents the human mathematical intent?"},{"t":2494,"s":1,"x":"That is the crux of the epistemological issue. An AI system cannot peer-review itself. It cannot verify mathematical meaning; it only verifies formal structure."},{"t":2505,"s":0,"x":"So if an underlying definition encoded into Lean contains a semantic flaw—let's say it defines a concept of density that doesn't actually align with the true measure-theoretic definition of natural density we discussed earlier—the AI toolchain will happily generate a perfectly verified, logically flawless proof of a completely irrelevant statement."},{"t":2526,"s":1,"x":"It's like having a flawless grammar checker. The AI can tell you that a sentence is perfectly structured with impeccable syntax and punctuation, but the grammar checker has no idea if the sentence is actually expressing the intended truth."},{"t":2537,"s":0,"x":"Formal verification is not mathematical validation."},{"t":2541,"s":1,"x":"A Lean proof certifies the formal statement within the confines of the code, but the correspondence between that formalized code and the informal real-world mathematical theorem is an entirely separate matter."},{"t":2554,"s":0,"x":"This means human auditing hasn't been replaced by AI; it has just been structurally redirected."},{"t":2560,"s":1,"x":"Right. Human reviewers no longer need to check every single deductive inference step by step; Lean handles the heavy lifting of the deduction. But humans must now audit the semantic definitions."},{"t":2571,"s":0,"x":"We have to audit the interface between the formal code and the informal mathematical reality."},{"t":2577,"s":1,"x":"Without that human validation of meaning, a formally verified proof remains an unrefereed computational artifact."},{"t":2584,"s":0,"x":"So when we step back and look at this entire deep dive—from the sublinear trap to the Diophantine locks, difference inequalities, logarithmic density, and finally to modular reachability—what is the core takeaway for the listener auditing the $3x + 1$ problem as of late 2026?"},{"t":2603,"s":1,"x":"The problem is defined by a profound topological asymmetry built into the very fabric of deterministic arithmetic. When you look backward from a target, the predecessor tree is topologically pervasive and structurally organized. Hallqvist's formalization proves it is entirely devoid of local modular obstructions; the backward tree stretches out and reaches everywhere."},{"t":2630,"s":0,"x":"But the moment you turn around—the moment you look forward in time from a starting input—that exact same deterministic arithmetic disperses chaotically."},{"t":2639,"s":1,"x":"Exactly. We have logarithmic density descent from Tao's work heavily suppressing the outliers."},{"t":2645,"s":0,"x":"But actual positive natural density remains trapped behind the sublinear barrier, currently relegated to unrefereed preprints and asymptotic bounds with massive denominators. The forward trajectory remains analytically opaque."},{"t":2658,"s":1,"x":"It does."},{"t":2659,"s":0,"x":"And I want to leave you, the listener, with a final thought to explore on your own. We are taught to view the number line as this static, eternal sequence of integers just sitting there. But this dynamical system reveals it as a dynamic, directional terrain."},{"t":2674,"s":1,"x":"That's a great perspective."},{"t":2675,"s":0,"x":"If deterministic arithmetic is functionally, chaotically opaque when moving forward in time, but highly structured and guaranteed when moving backward, does time directionality exist within pure number theory? Are there other mathematical systems out there where the sheer arrow of computational time dictates our very ability to perceive structural truth?"},{"t":2695,"s":1,"x":"It's a fascinating question."},{"t":2697,"s":0,"x":"It makes you wonder if the integers themselves have a current flowing in a direction we are only just beginning to map. Think about that next time you look at a simple arithmetic equation."}];
+const TURNS = [{"t":0,"s":0,"x":"Imagine a massive, intricate machine. Every time you drop a number into the top, it spits out a chaotic, wildly unpredictable path."},{"t":7,"s":1,"x":"Right."},{"t":8,"s":0,"x":"It bounces around seemingly at random, defying literally every attempt to track its logic. But if you take that exact same machine, flip it upside down, and run it in reverse,"},{"t":19,"s":1,"x":"it suddenly behaves with absolute, terrifying perfection."},{"t":23,"s":0,"x":"Yes, exactly. It mathematically maps out the entire universe of numbers without a single structural flaw."},{"t":29,"s":1,"x":"It is a profound paradox. Honestly, we are looking at a space where intuition based on sheer volume completely shatters against formal structural limits."},{"t":40,"s":0,"x":"And that brutal collision is the objective of our deep dive today. We are looking directly at the late 2026 landscape of the $3x + 1$ dynamical system."},{"t":49,"s":1,"x":"The Collatz conjecture."},{"t":51,"s":0,"x":"Right. But our mission here is to audit where we actually stand today. We will navigate the critical distinctions between established archival theorems, unrefereed preprints, and machine-verified formalizations,"},{"t":62,"s":1,"x":"cutting through the immense noise of recent claims to isolate the exact mathematical reality."},{"t":68,"s":0,"x":"Exactly. We aren't here to rehash the history or the elementary rules of the map. You already know the territory. We are going straight into the structural limits of what has actually been proven."},{"t":78,"s":1,"x":"To do that, um, we have to ground ourselves in the defining tension of the problem. We need to look at what the mathematical community calls the sublinear trap."},{"t":87,"s":0,"x":"The sublinear trap."},{"t":88,"s":1,"x":"Yeah. Let's start with the inverse tree: the set of positive integers that we mathematically know for a certainty eventually reach the trivial cycle of $\\{1, 4, 2\\}$."},{"t":99,"s":0,"x":"Okay."},{"t":101,"s":1,"x":"Let's assign a counting function to this, which we call $\\pi(x)$. This function's only job is to count how many of those proven integers exist up to a specific arbitrary cutoff value on the number line, which we'll just call $x$."},{"t":114,"s":0,"x":"So we are just tallying up the successful numbers as we move outward toward infinity."},{"t":119,"s":1,"x":"Precisely. Now imagine a hypothetical scenario where we prove that this counting function $\\pi(x)$ grows at a polynomial rate of $x^{0.9999}$."},{"t":131,"s":0,"x":"Oh, wow."},{"t":132,"s":1,"x":"Right. In practical computational terms, that implies that as you look at larger and larger expanses of the number line, the sheer quantity of numbers you have proven to reach $1$ is astronomical."},{"t":143,"s":0,"x":"It looks, for all intents and purposes, like you have captured almost everything."},{"t":148,"s":1,"x":"Exactly."},{"t":149,"s":0,"x":"Okay, let's unpack this, because an exponent of $0.9999$ feels like a victory."},{"t":154,"s":1,"x":"It does. "},{"t":155,"s":0,"x":"It's so incredibly close to $1$. But when we transition from just counting the raw growth to calculating the lower natural density, the entire picture flips on its head."},{"t":165,"s":1,"x":"It really does. The lower natural density of a set of integers is mathematically defined as the limit inferior as $x$ approaches infinity of that counting function $\\pi(x)$ divided by $x$ itself."},{"t":177,"s":0,"x":"Hold on, let me translate limit inferior for a second for everyone. We are essentially taking our massive set of proven numbers and dividing it by the total sequence of all positive integers up to that point, right?"},{"t":189,"s":1,"x":"Right."},{"t":189,"s":0,"x":"We're asking for the true rock-bottom, guaranteed mathematical proportion over the long haul."},{"t":195,"s":1,"x":"And if your growth bound is strictly sublinear, meaning the exponent is any number strictly less than $1$—even $0.9999$—then your implied lower density bound evaluates to exactly zero."},{"t":206,"s":0,"x":"Zero."},{"t":207,"s":1,"x":"Absolute zero. The limit as $x$ approaches infinity of $x^{0.9999} / x$ is the same as the limit of $1 / x^{0.0001}$."},{"t":219,"s":0,"x":"Right."},{"t":220,"s":1,"x":"And as $x$ goes to infinity, the denominator grows without bound, meaning that fraction goes to zero."},{"t":226,"s":0,"x":"It's like filling a bucket with a hose, but the bucket's walls are expanding faster than the water flows in."},{"t":232,"s":1,"x":"That's a great way to put it."},{"t":233,"s":0,"x":"No matter how many gallons you have, the bucket is functionally empty. Even with that massive exponent, the set of numbers you've proved steadily thins out relative to the sheer size of the number line. "},{"t":244,"s":1,"x":"It remains mathematically compatible with a natural density of zero."},{"t":248,"s":0,"x":"That is the sublinear trap in a nutshell. And because bottom-up counting arguments so easily fall victim to this dilution, the earliest systematic line of attack in the literature sought to bypass the concept of density entirely."},{"t":261,"s":1,"x":"The strategy was to move top-down."},{"t":263,"s":0,"x":"Right. If you can prove that non-trivial periodic orbits—meaning any cycles other than the trivial $1 \\to 4 \\to 2$ loop—cannot possibly exist, you fundamentally alter the landscape."},{"t":276,"s":1,"x":"Because if you can definitively eliminate the existence of any other loops, you strip the dynamical system of its alternative attractors."},{"t":283,"s":0,"x":"But I'm looking at the notes here, and doing that requires locking the dynamics into a really rigid algebraic cage."},{"t":291,"s":1,"x":"Yeah, it does. To set that trap, researchers focus on the accelerated Syracuse map."},{"t":295,"s":0,"x":"The accelerated map."},{"t":297,"s":1,"x":"Yes, which acts strictly on the odd positive integers. The map $T(n)$ multiplies an odd number by $3$, adds $1$, and then divides out every single factor of $2$ in one massive accelerated step until you land on the very next odd integer."},{"t":313,"s":0,"x":"So we are leaping directly from odd number to odd number, totally compressing all the intermediate even steps into a single operation."},{"t":321,"s":1,"x":"Precisely. Now suppose a hypothetical non-trivial cycle actually exists out there. It would consist of $k$ odd steps, and across that entire cycle, there would be a total of capital $K$ divisions by $2$."},{"t":335,"s":0,"x":"Okay, got it."},{"t":336,"s":1,"x":"If you track the algebra of that loop, it forces an exact, inescapable identity on the starting element of the cycle, which we will call $n_0$."},{"t":347,"s":0,"x":"I'm looking at this exact algebraic identity in the source material, and it looks like a dense wall of algebra."},{"t":353,"s":1,"x":"It's intimidating."},{"t":354,"s":0,"x":"It says $n_0$ multiplied by the quantity $(2^K - 3^k)$, and that is supposed to exactly equal a very specific summation on the right side."},{"t":370,"s":1,"x":"Right."},{"t":371,"s":0,"x":"What is this equation actually forcing the numbers to do?"},{"t":374,"s":1,"x":"Think of it as a structural mandate. The right side of that equation is a summation built entirely out of positive integers—specifically, powers of $3$ and powers of $2$ added together based on the cumulative count of divisions at each step."},{"t":388,"s":0,"x":"Okay."},{"t":389,"s":1,"x":"Because you are adding positive integers, the entire right side of the equation is strictly positive."},{"t":395,"s":0,"x":"I see where this is going. If the right side is strictly positive, the left side has to be strictly positive to maintain the equality."},{"t":401,"s":1,"x":"Exactly."},{"t":402,"s":0,"x":"And since our starting element $n_0$ is a positive integer, the coefficient it is multiplied by must also be positive. "},{"t":410,"s":1,"x":"Therefore, $2^K - 3^k$ must be greater than zero."},{"t":417,"s":0,"x":"Which means $2^K$ must be strictly greater than $3^k$."},{"t":423,"s":1,"x":"Which locks any hypothetical cycle into what the literature calls the supercritical regime."},{"t":428,"s":0,"x":"The supercritical regime."},{"t":431,"s":1,"x":"Yeah. If you take the base-2 logarithm of both sides of that inequality, you find that the ratio of total divisions to odd steps—that is, capital $K$ divided by lowercase $k$—must strictly exceed the base-2 logarithm of $3$."},{"t":445,"s":0,"x":"And the base-2 log of $3$ is roughly $1.58496$."},{"t":450,"s":1,"x":"Yes."},{"t":451,"s":0,"x":"So you are saying any non-trivial cycle in this entire dynamical system is instantly forced to obey this strict division-to-step ratio."},{"t":460,"s":1,"x":"It has to."},{"t":461,"s":0,"x":"It can't just be any loop; it has to have a very specific density of even to odd steps."},{"t":466,"s":1,"x":"And from that exact algebraic identity, the mathematical community developed a highly sophisticated three-part analytical framework to hunt down and exclude these hypothetical cycles."},{"t":475,"s":0,"x":"Okay. What's the first part?"},{"t":476,"s":1,"x":"The first prong is Diophantine analysis,"},{"t":479,"s":0,"x":"which treats that algebraic identity as a discrete exact lock. But how do they actually pick the lock?"},{"t":486,"s":1,"x":"By fixing a specific combinatorial sequence of division exponents, you basically tell the system, \"let's test this exact specific pattern of odd and even parities.\""},{"t":497,"s":0,"x":"Okay."},{"t":498,"s":1,"x":"Once you fix that sequence, all the coefficients in your summation are totally determined. The problem then reduces to a pure Diophantine question: does this specific summation evaluate to an exact integer multiple of that coefficient on the left?"},{"t":514,"s":0,"x":"But the sources are very clear about the immediate brick wall this approach hits. It's the combinatorial explosion of parity sequences."},{"t":521,"s":1,"x":"Yeah, the complexity blows out."},{"t":523,"s":0,"x":"It's like trying to crack a padlock, but every time you add a single step to your hypothetical cycle, the padlock adds an exponentially larger number of new dials."},{"t":532,"s":1,"x":"It's a perfect analogy."},{"t":533,"s":0,"x":"You cannot brute-force test every single discrete lock because the universe of possible parity arrangements grows too fast,"},{"t":540,"s":1,"x":"which forces the methodology to shift domains. Unable to win in the discrete integer realm, the second prong of the framework shifts the battleground into continuous real space."},{"t":550,"s":0,"x":"Continuous real space."},{"t":551,"s":1,"x":"Yeah. This is the Archimedean bounds approach."},{"t":554,"s":0,"x":"By taking logarithms, you convert that rigid exact cycle identity into an approximate equality concerning real magnitudes."},{"t":561,"s":1,"x":"Exactly."},{"t":562,"s":0,"x":"And this introduces a concept the literature denotes as $\\Lambda$, the residual gap."},{"t":567,"s":1,"x":"$\\Lambda$ is defined as capital $K \\ln 2 - k \\ln 3$."},{"t":574,"s":0,"x":"Okay."},{"t":575,"s":1,"x":"Think of it as a measure of the discrepancy between the powers of $2$ and $3$ in our supercritical regime. Because we already established that $2^K > 3^k$, we know that $\\Lambda$ must be strictly positive."},{"t":589,"s":0,"x":"Okay, let's look at the mechanics of this. How does this gap, this $\\Lambda$, actually help us kill off cycles?"},{"t":595,"s":1,"x":"Because the summation on the right side of our cycle identity is mathematically bounded by a geometric series, we can use $\\Lambda$ to constrain the absolute minimal element of any hypothetical cycle, which we call $n_{\\min}$."},{"t":607,"s":0,"x":"Right."},{"t":609,"s":1,"x":"The elementary Archimedean inequality states that $n_{\\min}$ must be strictly less than the number of odd steps $k / 3^\\Lambda$."},{"t":618,"s":0,"x":"Well, let me visualize that fraction. If your residual gap $\\Lambda$ is a relatively large number, then your denominator $3^\\Lambda$ becomes absolutely massive."},{"t":628,"s":1,"x":"Yes."},{"t":629,"s":0,"x":"And if you are dividing by a massive number, your ceiling for the minimal element is forced to be very small."},{"t":635,"s":1,"x":"And we already know, thanks to massive computational brute-force searches, that there are absolutely no non-trivial cycles below approximately $2^{68}$."},{"t":644,"s":0,"x":"Oh, wow. So if a cycle has a large residual gap, the mathematics forces its smallest element to be tiny, well below that $2^{68}$ threshold."},{"t":654,"s":1,"x":"Exactly."},{"t":655,"s":0,"x":"But we've checked everything below that threshold, and it's empty. Therefore, any cycle with a substantial residual gap is definitively mathematically ruled out. It just can't exist."},{"t":665,"s":1,"x":"The only way a cycle could theoretically survive and hide in the unsearched wilderness above $2^{68}$ is if that residual gap $\\Lambda$ were infinitesimally small."},{"t":675,"s":0,"x":"Meaning the powers of $2$ and the powers of $3$ would have to approximate each other with an almost unnatural, microscopic precision just to squeeze into that tiny mathematical blind spot."},{"t":686,"s":1,"x":"Which brings us to the third prong of the analytical framework to close that blind spot: Baker-type bounds, specifically the theory of linear forms in logarithms."},{"t":695,"s":0,"x":"I know Alan Baker won a Fields Medal for this kind of work. What does his theory actually do to our gap?"},{"t":701,"s":1,"x":"Baker essentially proved that non-zero linear combinations of logarithms of algebraic numbers—which is exactly what our $\\Lambda$ is, $K \\ln 2 - k \\ln 3$—cannot just slide arbitrarily close to zero without facing a consequence."},{"t":715,"s":0,"x":"A consequence."},{"t":717,"s":1,"x":"Yes, there is a fundamental, quantifiable mathematical repulsion. Explicit estimates developed later by Laurent, Mignotte, and Nesterenko provide a concrete floor for this repulsion."},{"t":728,"s":0,"x":"Okay."},{"t":729,"s":1,"x":"They established that the natural log of $\\Lambda$ must be greater than or equal to a negative constant $C$ multiplied by the square of the natural log of capital $K$."},{"t":739,"s":0,"x":"Okay, so let me put this three-part machine together. The Archimedean inequality puts a ceiling on how large the cycle's minimal element can be based on the gap $\\Lambda$."},{"t":748,"s":1,"x":"Right."},{"t":749,"s":0,"x":"But the Baker-type bounds put a hard floor on how small that gap can actually get."},{"t":754,"s":1,"x":"By substituting the Baker floor back into the Archimedean ceiling, you generate a highly effective, explicit upper bound on the smallest element of any hypothetical cycle of a given length."},{"t":765,"s":0,"x":"And researchers have been turning the crank on this machine for decades. I mean, R. P. Steiner used it alongside lattice-basis reduction to prove the only 1-cycle is the trivial cycle."},{"t":774,"s":1,"x":"Yes."},{"t":775,"s":0,"x":"Simons and de Weger used it to eliminate cycles with up to $68$ local minima. And looking at the late 2026 landscape, we see that Hercher extended this exclusion to cycles with up to $91$ local minima."},{"t":788,"s":1,"x":"But this is a vital distinction we must make: cycle exclusion is not global resolution."},{"t":793,"s":0,"x":"It's not."},{"t":794,"s":1,"x":"Hercher's results, while computationally and analytically massive, still heavily rely on the limits of brute-force verification."},{"t":801,"s":0,"x":"Wait, if this three-part machine works so well, why can't we just run it to infinity and kill all the cycles?"},{"t":808,"s":1,"x":"Because the entire methodology hits a structural brick wall when we consider cycles where the combinatorial complexity—the number of local minima, which we denote as $m$—grows linearly with the overall cycle length."},{"t":820,"s":0,"x":"So as the structure of the hypothetical cycle gets more complex, the multidimensional Baker bounds start to break down."},{"t":827,"s":1,"x":"They do. The repulsion estimates lose their sharpness, the floor provided by Baker drops, the ceiling provided by Archimedes rises, and the gap between them widens to a point where they no longer force a mathematical contradiction against our computationally verified range of $2^{68}$."},{"t":843,"s":0,"x":"It's like having a vice grip that works perfectly on small objects, but if you try to clamp it around something incredibly wide, the threads strip."},{"t":851,"s":1,"x":"That's a great way to put it."},{"t":852,"s":0,"x":"The established Diophantine and Baker-type method simply cannot establish that cycles of arbitrary complexity are impossible. The top-down strategy successfully clears out a massive amount of underbrush, but the canopy—periodic orbits of unrestricted combinatorial complexity—remains theoretically wide open."},{"t":870,"s":1,"x":"Which perfectly explains the historical pivot in the literature. Unable to definitively eliminate cycles of arbitrary complexity from the top down, the field simultaneously developed a bottom-up strategy."},{"t":882,"s":0,"x":"Okay, the bottom-up strategy."},{"t":884,"s":1,"x":"Yeah. If we can't prove that alternative cycles don't exist, let's try to prove that the vast majority of numbers flow into the trivial cycle we do know about. And this takes us right back to the inverse branching tree descending from $1$. We are looking for lower bounds on that counting function $\\pi(x)$. This program advanced incrementally over decades. Crandall first established a polynomial growth bound."},{"t":905,"s":0,"x":"Right."},{"t":906,"s":1,"x":"Krasikov introduced difference inequalities yielding an exponent of $0.43$. Wirsching pushed that to $0.48$."},{"t":914,"s":0,"x":"Wow."},{"t":915,"s":1,"x":"Applegate and Lagarias utilized computer-assisted tree search to reach $0.65$, and later applied nonlinear programming to Krasikov's inequalities to hit $0.81$."},{"t":925,"s":0,"x":"Which brings us to the archival gold standard: the 2003 theorem of Krasikov and Lagarias."},{"t":930,"s":1,"x":"Yes, this is the peer-reviewed benchmark against which all modern claims must be measured. Their theorem establishes that for all sufficiently large $x$, the counting function $\\pi(x)$ is greater than or equal to $x^{0.84}$."},{"t":948,"s":0,"x":"And the mechanism they used to achieve this $0.84$ bound is mathematically fascinating. They had to balance the generating functions of the inverse map."},{"t":958,"s":1,"x":"Balance them."},{"t":960,"s":0,"x":"Yes, because when you run the Collatz map in reverse, you are dealing with two highly antagonistic operations."},{"t":967,"s":1,"x":"Let's visualize that tug-of-war. What are the two forces?"},{"t":970,"s":0,"x":"On one hand, you have the inverse even step mapping $n$ to $2n$. This is explosive. It creates a single, rapidly growing, unbranching lineage."},{"t":980,"s":1,"x":"It's a superhighway. You just keep doubling and doubling and shooting off into massive numbers very quickly."},{"t":984,"s":0,"x":"Fighting against that explosive growth, you have the inverse odd step mapping $n$ to $(n - 1) / 3$."},{"t":992,"s":1,"x":"Okay."},{"t":994,"s":0,"x":"This step is contracting, and it is what actually creates the branching structure of the tree, giving it width. The $0.84$ exponent was derived by masterfully balancing these explosive and contracting forces within a highly complex system of difference inequalities."},{"t":1010,"s":1,"x":"But as we audit the late 2026 landscape, we have to look at the recent unrefereed preprints attempting to push past this $0.84$ benchmark."},{"t":1018,"s":0,"x":"Right."},{"t":1018,"s":1,"x":"And these recent attempts perfectly illustrate just how mathematically fragile these inverse tree models actually are."},{"t":1025,"s":0,"x":"A perfect example is the December 2025 preprint by Chao Liu titled *Counting the Collatz numbers*."},{"t":1031,"s":1,"x":"Yes, I saw this one."},{"t":1033,"s":0,"x":"In the initial version of that preprint, Liu announced a massive leap: an exponent of $0.946$."},{"t":1040,"s":1,"x":"Which would have been incredible, but we have to explicitly caution you, the listener, regarding these unrefereed claims. What happened when the mathematical community actually looked under the hood of Liu's work?"},{"t":1053,"s":0,"x":"Critical topological dependency errors were revealed."},{"t":1056,"s":1,"x":"What exactly does a topological dependency error look like in an inverse tree?"},{"t":1061,"s":0,"x":"In this specific context, it involves overcounting branches. The error stemmed from incorrectly treating certain branches as independent when in reality they relied on consecutive odd inverse operations. And the fundamental arithmetic structure of the map heavily constrains that. When you run the map in reverse, applying an odd inverse step produces a number that is congruent to zero modulo $3$. So it produces a multiple of three."},{"t":1086,"s":1,"x":"Yes, but a number that is a multiple of three cannot possibly have an odd predecessor."},{"t":1092,"s":0,"x":"Wait, really? It's like mapping a city's roads but forgetting some are one-way streets or dead ends, so your algorithm starts counting theoretical routes that cars can't actually drive."},{"t":1102,"s":1,"x":"Exactly."},{"t":1103,"s":0,"x":"If your tree model doesn't mathematically account for that zero modulo 3 dead end, you start counting phantom branches that simply do not exist in the arithmetic reality. And to his credit, once this was pointed out, Liu issued a second version of the preprint, retracting the $0.946$ figure."},{"t":1119,"s":1,"x":"Oh, he retracted it."},{"t":1120,"s":0,"x":"Yes. The revised exponent in version two is $0.3227$."},{"t":1125,"s":1,"x":"Wow. Let that sink in. It falls from a purported breakthrough of $0.946$ all the way down to $0.3227$, which is drastically below the 2003 baseline of $0.84$."},{"t":1138,"s":0,"x":"It is a stark reminder of why review and community scrutiny are absolutely non-negotiable in this field."},{"t":1145,"s":1,"x":"Right. We also have L. Mazur's July 2026 manuscript to consider in this category. This preprint claims a Lean-formalized bound of $\\pi(x)$ growing on the order of $x^{0.90}$, specifically for predecessor sets of targets not divisible by $3$."},{"t":1162,"s":0,"x":"Well, let's play devil's advocate for a second. Let's assume that Mazur's machine-checked proof is entirely structurally sound and eventually passes peer review."},{"t":1170,"s":1,"x":"Okay, let's assume that."},{"t":1171,"s":0,"x":"We are looking at $x^{0.90}$. We have to point out the fundamental mathematical reality here, connecting right back to our baseline at the beginning of the show: we are right back in the sublinear trap."},{"t":1183,"s":1,"x":"Exactly. An exponent of, say, $0.90$ is still strictly sublinear. It is less than $1$. So even if perfectly verified, this bound leaves the lower natural density of the basin of attraction at absolutely zero."},{"t":1199,"s":0,"x":"Yes, we are back in the bucket dilution scenario. Counting growth, no matter how computationally impressive the exponent is, is categorically, mathematically distinct from positive natural density."},{"t":1209,"s":1,"x":"Which means the bottom-up strategy—the inverse tree—while structurally illuminating and yielding these complex difference inequalities, currently leaves us trapped behind that sublinear barrier."},{"t":1220,"s":0,"x":"So if the backward tree traps us in zero density, the natural analytical pivot is to ask what happens when we reverse our perspective."},{"t":1227,"s":1,"x":"Right."},{"t":1228,"s":0,"x":"What happens when we track individual orbits forward in time?"},{"t":1231,"s":1,"x":"If we can't build a tree from the bottom up to capture a positive density, let's just drop points from the top down and prove they all fall."},{"t":1239,"s":0,"x":"This is the transition into forward dynamics."},{"t":1241,"s":1,"x":"The archival foundations of forward descent begin with R. Terras in 1976. Terras proved that the set of positive integers possessing a finite stopping time has a natural density of $1$."},{"t":1252,"s":0,"x":"Let's clarify that term. A finite stopping time just means the orbit eventually hits a value strictly smaller than its starting point."},{"t":1259,"s":1,"x":"Correct."},{"t":1260,"s":0,"x":"It guarantees a single local descent, not that it plummets all the way to $1$."},{"t":1264,"s":1,"x":"Then in 1994, I. Korec strengthened this result. Also measuring in natural density, Korec proved that for almost every integer $n$, the orbit will eventually drop below $n^\\theta$, for any $\\theta$ strictly greater than $\\log 3 / \\log 4$,"},{"t":1280,"s":0,"x":"which is roughly $0.7924$."},{"t":1283,"s":1,"x":"Yes."},{"t":1284,"s":0,"x":"So almost every number drops below its own $0.7924$ power. But we need to be very rigorous here for you, the listener: localized descent, even deep descent below a fractional power, does not equal global convergence."},{"t":1297,"s":1,"x":"Absolutely not."},{"t":1298,"s":0,"x":"Proving that an orbit drops below $n^{0.7924}$ does absolutely nothing to prevent that exact same orbit from bouncing off that temporary floor, subsequently diverging to infinity, or getting permanently trapped in some astronomically large cycle we haven't found yet."},{"t":1312,"s":1,"x":"Descent is not convergence."},{"t":1314,"s":0,"x":"But the forward dynamics program did see a major, highly celebrated breakthrough in 2022. Terence Tao published a theorem in *Forum of Mathematics, Pi*."},{"t":1323,"s":1,"x":"He established that almost all Collatz orbits attain almost bounded values."},{"t":1328,"s":0,"x":"I remember when this paper dropped. It is a monumental piece of mathematics. Tao essentially proved that you can pick a threshold function $f(n)$ that diverges to infinity, and you can make it grow incredibly slowly."},{"t":1340,"s":1,"x":"Right, extremely slowly."},{"t":1342,"s":0,"x":"You could pick the natural log of the natural log of the natural log of $n$—an almost microscopic upward slope—and Tao proved that almost all orbits will eventually drop below that slow-growing threshold."},{"t":1354,"s":1,"x":"However, here is where we must draw a massive, heavily highlighted distinction regarding Tao's theorem. It is a distinction of mathematical measure."},{"t":1363,"s":0,"x":"Okay, what's the distinction?"},{"t":1365,"s":1,"x":"Tao's theorem is established strictly with respect to logarithmic density, denoted in the literature as $d_{\\log}$. It is not a result in natural density."},{"t":1375,"s":0,"x":"We need to make sure you, the listener, grasp just how wide the chasm is between logarithmic density and natural density, because this is where the math gets heavily misinterpreted."},{"t":1384,"s":1,"x":"Very often, yes."},{"t":1386,"s":0,"x":"Think of it like this: if natural density is a purely democratic vote where every single integer gets exactly one equal ballot, logarithmic density is an electoral system where the voting power of larger numbers is aggressively suppressed."},{"t":1399,"s":1,"x":"That analogy perfectly captures the mechanics. In natural density, every integer up to your cutoff $x$ carries a uniform statistical weight of $1$. You just count them, right?"},{"t":1409,"s":0,"x":"Right."},{"t":1410,"s":1,"x":"But in logarithmic density, each integer $n$ is weighted by the fraction $1/n$."},{"t":1416,"s":0,"x":"So the number $10$ gets a voting weight of $1/10$."},{"t":1419,"s":1,"x":"Exactly."},{"t":1420,"s":0,"x":"But the number $1\\text{ million}$ only gets a voting weight of $1/1{,}000{,}000$."},{"t":1423,"s":1,"x":"Exactly."},{"t":1424,"s":0,"x":"The further out you go on the number line, the less the numbers matter to the overall density calculation."},{"t":1429,"s":1,"x":"The formal mathematical definition of the logarithmic density of a set $S$ is the limit as $x$ goes to infinity of the sum of $1/n$ for all $n \\in S$ up to $x$, divided by the harmonic sum up to $x$. And this $1/n$ weighting acts as a massive statistical dampener on the entire system."},{"t":1444,"s":0,"x":"Precisely. Why do you need a dampener?"},{"t":1447,"s":1,"x":"Because it effectively hides chaotic outliers. If there are rare, wildly misbehaving orbits that only appear at incredibly high integers, the $1/n$ weighting crushes their statistical significance, allowing the limit of the calculation to actually stabilize."},{"t":1462,"s":0,"x":"Oh, I see."},{"t":1464,"s":1,"x":"Tao's analytical machinery relies on this: he uses a first-passage random variable associated with the Syracuse dynamics, and that variable only stabilizes under the heavy suppression of the $1/n$ dampener."},{"t":1475,"s":0,"x":"Now just to be thorough, it is true that if a set possesses a well-defined natural density, its logarithmic density will exist and will perfectly equal that natural density."},{"t":1484,"s":1,"x":"That is true."},{"t":1485,"s":0,"x":"But the reverse is absolutely not true."},{"t":1487,"s":1,"x":"It is entirely possible for a set of integers to have a logarithmic density of exactly $1$ while its natural density oscillates wildly indefinitely, never settling on a limit."},{"t":1498,"s":0,"x":"So while Tao's result is a profound achievement in controlling the dynamics under a logarithmic measure, he does not prove natural density descent, nor does he prove eventual convergence to $1$."},{"t":1509,"s":1,"x":"The chasm between logarithmic density and natural density remains uncrossed in the peer-reviewed literature."},{"t":1516,"s":0,"x":"Which leads us directly into the 2026 preprint wave, because crossing this chasm is exactly what recent unrefereed attempts have tried to do."},{"t":1524,"s":1,"x":"We see this explicitly in the manuscripts. L. Mazur has a preprint claiming natural-density-one descent below every diverging threshold within logarithmic time, again accompanied by a Lean formalization."},{"t":1537,"s":0,"x":"Okay."},{"t":1539,"s":1,"x":"Parallel to that, we have I. A. Shaik claiming polylogarithmic descent in natural density with a logarithmic leading time."},{"t":1546,"s":0,"x":"Both of these are highly ambitious attempts to translate the spirit of Tao's almost bounded result out of the suppressed logarithmic measure and into the uniform, unweighted natural density measure."},{"t":1557,"s":1,"x":"Right."},{"t":1558,"s":0,"x":"But again, these are unrefereed claims. And as we move from mere descent to the ultimate prize, the claims get even bolder. The deep dive sources highlight that 2026 also saw preprints claiming actual positive lower natural density for the basin of attraction itself."},{"t":1573,"s":1,"x":"Yes,"},{"t":1574,"s":0,"x":"not just dropping below a log-log threshold, but claims that a strictly positive percentage of all integers unequivocally reach $1$."},{"t":1583,"s":1,"x":"Let's unpack these preprints carefully to see exactly what is being claimed under the hood."},{"t":1587,"s":0,"x":"Let's do it."},{"t":1588,"s":1,"x":"Mazur's work on Proof Atlas claims the existence of an explicit positive constant $c$ and a cutoff $X_0$ such that at least $c X$ integers below every sufficiently large $X$ reach $1$ within $10.46 \\ln n$ ordinary steps—"},{"t":1605,"s":0,"x":"a direct claim of a positive natural density, a linear proportion."},{"t":1609,"s":1,"x":"Yes. And Mazur extended this in a companion preprint to predecessor sets of any target not divisible by $3$."},{"t":1616,"s":0,"x":"Okay, wow."},{"t":1617,"s":1,"x":"Building directly upon Mazur's construction, we have a preprint hosted on the Hexagon network by Kelvin Lau. And we should explicitly note for clarity that Kelvin Lau is a completely different author than Chao Liu, whom we discussed earlier regarding the topological tree errors."},{"t":1632,"s":0,"x":"Different mathematician, different approach entirely."},{"t":1635,"s":1,"x":"Yeah."},{"t":1636,"s":0,"x":"So what is Lau doing?"},{"t":1637,"s":1,"x":"Lau utilizes an automated AI prover to derive an explicit refinement of Mazur's constant. The claim is that for every capital $N$, the number of odd integers below $N$ reach $1$ within $10.46 \\ln n$ steps is at least the floor of $N$ divided by a specific explicit denominator."},{"t":1659,"s":0,"x":"I need to read this denominator out loud from the sources because it is a critical observation regarding the real-world mathematical implications of this claim."},{"t":1666,"s":1,"x":"Go for it."},{"t":1667,"s":0,"x":"The bound claims the number of integers is at least: $$\\left\\lfloor \\frac{N}{2^{2^{2^{163}}}} \\right\\rfloor.$$"},{"t":1675,"s":1,"x":"A triply iterated power of $2$."},{"t":1678,"s":0,"x":"Let's just look at the sheer absurdity of that denominator. $2^{163}$ is already a staggeringly large number. Then you raise $2$ to that power. Then you raise $2$ to that unimaginable power. The denominator is incomprehensibly massive."},{"t":1694,"s":1,"x":"And because the formula takes the floor of the fraction, we have to consider what happens for any value of $N$ that is strictly smaller than that denominator."},{"t":1702,"s":0,"x":"Okay."},{"t":1703,"s":1,"x":"If $N$ is less than $2^{2^{2^{163}}}$, the entire fraction evaluates to less than $1$. And the floor function crushes any decimal less than $1$ down to exactly zero."},{"t":1715,"s":0,"x":"Exactly. If $N$ is any number that can physically be written down, computed, or even conceptualized in our physical universe, the formula guarantees precisely zero numbers reach $1$."},{"t":1725,"s":1,"x":"It evaluates to zero."},{"t":1726,"s":0,"x":"It only begins to claim a positive quantity of numbers once $N$ surpasses that triply iterated power. It is a purely asymptotic bound."},{"t":1735,"s":1,"x":"It guarantees a positive density at infinity, but it provides zero structural information for the observable number line."},{"t":1743,"s":0,"x":"Right."},{"t":1744,"s":1,"x":"And once again, a necessary status check: none of these claims of positive natural density have passed peer review. They remain provisional artifacts under community scrutiny, deeply reliant on AI theorem provers."},{"t":1758,"s":0,"x":"So if global convergence in natural density is currently mired in unrefereed, purely asymptotic preprint claims, where is the solid mathematical ground in 2026?"},{"t":1769,"s":1,"x":"The sources shift our focus here to a mathematically distinct 2026 formalization."},{"t":1774,"s":0,"x":"Okay, what is it?"},{"t":1775,"s":1,"x":"This one looks away from global density entirely and looks directly at modular arithmetic."},{"t":1782,"s":0,"x":"We are talking about André Hallqvist's formalization titled *Effective Remainder Everywhere*, hosted on GitHub and Zenodo."},{"t":1789,"s":1,"x":"Yes."},{"t":1790,"s":0,"x":"It is vital to state up front that just like the others, this is an unrefereed, AI-assisted preprint accompanied by a Lean 4.35 formalization. It is not a peer-reviewed publication."},{"t":1802,"s":1,"x":"But the mathematical claim it makes is structurally fascinating because it completely sidesteps the chaos of forward dynamics."},{"t":1811,"s":0,"x":"But before we get into the mechanics of how it works, I need to set a hard, unbreakable boundary right now for you, the listener: this theorem is not a proof of the Collatz conjecture."},{"t":1821,"s":1,"x":"It absolutely is not. And the ultimate intuition pump to understand why modular reachability does not equal global convergence is to look at a parallel dynamical system."},{"t":1831,"s":0,"x":"A parallel system."},{"t":1832,"s":1,"x":"Yes. Hallqvist's exact same proof machinery applies to the generalized $5x + 1$ problem."},{"t":1840,"s":0,"x":"Let's pause and explain the $5x + 1$ system for a second. It's similar to Collatz, but if a number is odd, you multiply by $5$ and add $1$. If it's even, you divide by $2$."},{"t":1850,"s":1,"x":"Right. And in the $5x + 1$ system, the global conjecture—the idea that all numbers eventually reach $1$—is definitively, provably false."},{"t":1859,"s":0,"x":"Oh, it's false."},{"t":1861,"s":1,"x":"Yes, we know for a mathematical fact that there are at least three distinct, disjoint cycles: one has a minimal odd element of $1$, another has a minimal element of $13$, and another has $17$. Furthermore, empirical evidence heavily suggests there are orbits that simply diverge to infinity, never cycling and never returning."},{"t":1882,"s":0,"x":"So the $5x + 1$ system is a fractured landscape: multiple attractors, divergent paths. It is the exact antithesis of universal convergence."},{"t":1892,"s":1,"x":"Yet Hallqvist's modular reachability theorem holds equally true for the $5x + 1$ map."},{"t":1897,"s":0,"x":"Really?"},{"t":1897,"s":1,"x":"Yes. It yields an analogous bound—a ceiling taking the form of $2^{2^{105 N^5}}$—but the structural guarantee remains identical."},{"t":1909,"s":0,"x":"Because the theorem functions in a system known to contain multiple disjoint cycles and divergent trajectories, it is mathematically agnostic to whether the orbits globally converge to $1$."},{"t":1921,"s":1,"x":"It doesn't care where the orbits eventually end up in the forward direction; it only cares about the structure of the backward tree."},{"t":1927,"s":0,"x":"Oh, I see."},{"t":1928,"s":1,"x":"It proves that if you trace the predecessor tree backward from a valid target, that tree will eventually branch out and hit every single modular residue class."},{"t":1937,"s":0,"x":"The formal theorem states: for every modulus $N \\ge 1$, every natural number $w$ not divisible by $3$, and every residue class $r \\pmod N$, there exists an integer predecessor $n \\equiv r \\pmod N$ such that $n$ eventually reaches $w$."},{"t":1957,"s":1,"x":"There's a crucial arithmetic restriction in that statement that we need to highlight: the target root $w$ cannot be divisible by $3$."},{"t":1966,"s":0,"x":"Why?"},{"t":1967,"s":1,"x":"This comes down to an elementary structural constraint of the Collatz map itself. If you take any integer $m$ and apply an odd Collatz step, you calculate $3m + 1$."},{"t":1977,"s":0,"x":"Right."},{"t":1977,"s":1,"x":"That result, $3m + 1$, is congruent to $1 \\pmod 3$."},{"t":1983,"s":0,"x":"It leaves a remainder of $1$."},{"t":1984,"s":1,"x":"Exactly. Always. Therefore, an odd step can never produce a multiple of $3$. Multiples of $3$ simply have no odd predecessors. The only way to reach a multiple of $3$ is by dividing an even number by $2$."},{"t":1996,"s":0,"x":"So if you plant your target root $w$ at a multiple of $3$—say, the number $9$—and try to build the inverse tree backward, you can only ever multiply by $2$:"},{"t":2006,"s":1,"x":"Right."},{"t":2007,"s":0,"x":"$9 \\to 18 \\to 36 \\to 72$. You are permanently trapped in a single, unbranching lineage of doublings, all of which are multiples of $3$. You can never branch out to reach numbers that have remainders of $1$ or $2 \\pmod 3$."},{"t":2023,"s":1,"x":"Which is precisely why Hallqvist restricts the target $w$ to numbers not divisible by $3$."},{"t":2028,"s":0,"x":"But to be crystal clear on the directionality here: the target $w$ cannot be a multiple of $3$, but the predecessors absolutely can be."},{"t":2037,"s":1,"x":"That is a vital distinction. The restriction applies only to the root of the tree; the branches can go anywhere. For example, $117$ is a multiple of $3$, and it is a valid predecessor of $11$: $$117 \\to 352 \\to 176 \\to 88 \\to 44 \\to 22 \\to 11.$$"},{"t":2050,"s":0,"x":"Okay, I see."},{"t":2051,"s":1,"x":"Hallqvist proves we can find predecessors in every single residue class modulo $N$, including the zero modulo 3 class, as long as the root target $w$ isn't divisible by $3$."},{"t":2063,"s":0,"x":"So how does Hallqvist actually prove this universal modular reachability? The sources describe the architecture of the proof as a meet-in-the-middle approach."},{"t":2071,"s":1,"x":"It's a brilliant structural maneuver, conceptually similar to how computer scientists solve massive decision trees by connecting forward searches with backward databases."},{"t":2082,"s":0,"x":"Right."},{"t":2083,"s":1,"x":"Hallqvist avoids the chaotic, unpredictable trajectories of long forward orbits by factoring the modulus $N$. He breaks $N$ down into its prime components: $$N = 2^\\alpha \\cdot 3^b \\cdot M,$$"},{"t":2097,"s":0,"x":"where $M$ represents the coprime remainder, meaning $M$ shares no common factors with $2$ or $3$."},{"t":2105,"s":1,"x":"It's like navigating a grid city: the twos and threes are the avenues, and $M$ represents all the cross streets."},{"t":2112,"s":0,"x":"By breaking the modulus apart, you can conquer the congruences separately. Moving forward from the candidate residue class $r$, Hallqvist uses deterministic parity words—specific sequences of odd and even steps—to clear out the divisibility constraints imposed by the 2-adic and 3-adic components, $2^\\alpha$ and $3^b$."},{"t":2134,"s":1,"x":"You've forced the orbit through a specific sequence of operations that perfectly align the twos and threes. You navigate the avenues."},{"t":2141,"s":0,"x":"Meanwhile, moving backward from the target root $w$, the backward closure is analyzed not over the standard integers, but over the finite ring $\\mathbb{Z}/M\\mathbb{Z}$."},{"t":2152,"s":1,"x":"And within this finite ring, because $M$ is coprime to $2$ and $3$, multiplication by $2$ and the odd inverse operation are well-defined invertible affine transformations."},{"t":2163,"s":0,"x":"They are reliable geometric transformations within that finite modular space. You are navigating the cross streets."},{"t":2172,"s":1,"x":"And by utilizing modular lifting and the Chinese Remainder Theorem, Hallqvist proves that the forward path clearing the avenues and the backward path navigating the cross streets must necessarily intersect in the middle."},{"t":2185,"s":0,"x":"That's a mathematical pincer movement, and it guarantees reachability across all modular classes simultaneously."},{"t":2191,"s":1,"x":"Yes, it does."},{"t":2193,"s":0,"x":"But because it's a universal guarantee—because it promises to hit every single residue class, no matter the modulus—the resulting effective bound, the theoretical ceiling, is absolutely staggering."},{"t":2205,"s":1,"x":"The theorem guarantees that the predecessor $n$ will be bounded by: $$n \\le w \\cdot 2^{2^{48 N^4}}.$$"},{"t":2218,"s":0,"x":"We have to marvel at the sheer scale of this theoretical ceiling. Hallqvist provides a toy example in the repository to illustrate this. Let's walk through it."},{"t":2226,"s":1,"x":"Okay."},{"t":2227,"s":0,"x":"If you set the modulus $N = 7$ and your target $w = 11$, and you're looking for a predecessor in the zero modulo 7 residue class:"},{"t":2236,"s":1,"x":"the actual, real-world minimal witness for those parameters is simply the number $7$. The number $7$ is congruent to $0 \\pmod 7$, and in two steps, $7 \\to 22 \\to 11$, it reaches the target."},{"t":2251,"s":0,"x":"So the actual answer is $7$. It's right there."},{"t":2253,"s":1,"x":"Right."},{"t":2254,"s":0,"x":"But if you plug $N = 7$ and $w = 11$ into the ceiling formula, you evaluate: $$11 \\cdot 2^{2^{48 \\cdot 7^4}} = 11 \\cdot 2^{2^{115{,}248}}.$$"},{"t":2266,"s":1,"x":"which simplifies to $11 \\cdot 2^{2^{115{,}248}}$."},{"t":2274,"s":0,"x":"And when you convert that power tower into base 10, you get approximately: $$10^{10^{34{,}692.58}}.$$"},{"t":2283,"s":1,"x":"It is an astronomically large number."},{"t":2286,"s":0,"x":"Just to put that in perspective for the listener: a googol is a $1$ with $100$ zeros, $10^{100}$. A googolplex is $10^{\\text{googol}}$, or $10^{10^{100}}$."},{"t":2297,"s":1,"x":"Right."},{"t":2297,"s":0,"x":"A googolplex has a mere $100$ digits in its highest exponent. Hallqvist's bound has nearly $35{,}000$ digits in its highest exponent. It absolutely dwarfs a googolplex."},{"t":2309,"s":1,"x":"Which perfectly illustrates the critical distinction between effective bounds and practical computation. Hallqvist's bound is not an estimate of the smallest predecessor."},{"t":2319,"s":0,"x":"No, definitely not."},{"t":2320,"s":1,"x":"It is not a practical search range; no computer in the universe could search up to that number."},{"t":2328,"s":0,"x":"Its significance is entirely theoretical: it is a mathematical guarantee that infinite modular blind spots are impossible. It establishes a finite, explicit ceiling, proving that local congruence obstructions simply do not exist in the backward tree."},{"t":2344,"s":1,"x":"And this brings us to a defining feature of this entire late 2026 mathematical landscape:"},{"t":2349,"s":0,"x":"What's that?"},{"t":2350,"s":1,"x":"whether we are discussing Mazur's density claims on Proof Atlas, Kelvin Lau's Hexagon preprint, or Hallqvist's *Effective Remainder Everywhere*, there is a heavy, almost pervasive reliance on automated AI provers and interactive theorem provers like Lean 4.35."},{"t":2367,"s":0,"x":"This requires us to pause and really understand the epistemology of 2026, because this is fascinating: what does a machine-checked proof actually mean for human knowledge?"},{"t":2379,"s":1,"x":"On a technical level, it means strict toolchain dependency. Hallqvist's formalization, for example, strictly requires Lean 4.35 and relies exclusively on its core library; it will fail to compile on older versions like Lean 4.15."},{"t":2392,"s":0,"x":"Right."},{"t":2394,"s":1,"x":"But the philosophical shift is much deeper and much more significant. We have to distinguish between syntactic validity and semantic reality."},{"t":2403,"s":0,"x":"Let's break those terms down."},{"t":2404,"s":1,"x":"Syntactic validity is what the proof assistant provides. A system like Lean checks formal deduction. It guarantees internal logical consistency starting from core encoded axioms."},{"t":2415,"s":0,"x":"Okay."},{"t":2416,"s":1,"x":"In Lean, these are foundational rules like `propext`, `Classical.choice`, and `Quot.sound`."},{"t":2422,"s":0,"x":"Let me stop you there and translate those axioms for the listener, because they sound intimidating, but they are just the basic rules of the game."},{"t":2428,"s":1,"x":"Go ahead."},{"t":2429,"s":0,"x":"`propext`—propositional extensionality—basically tells the machine that if two statements mathematically prove each other, they can be treated as identical."},{"t":2437,"s":1,"x":"Yes."},{"t":2438,"s":0,"x":"`Classical.choice` is the rule that says if you have a non-empty collection of items, you can theoretically pick an item out of it, even if you don't have an explicit algorithm to find it. And `Quot.sound`—quotient soundness—just means if you group things together based on an equivalence relation, the machine respects that grouping when checking for equality."},{"t":2459,"s":1,"x":"Exactly. When Lean verifies a proof using those axioms, it certifies with absolute mechanical certainty that there are no hidden gaps in the deductive logic."},{"t":2469,"s":0,"x":"Right."},{"t":2470,"s":1,"x":"Step A logically leads to step B, all the way to the conclusion."},{"t":2475,"s":0,"x":"Which is incredible: we have a machine that can perfectly check the grammar and logic of a mathematical argument."},{"t":2479,"s":1,"x":"Yes,"},{"t":2480,"s":0,"x":"but this raises a huge philosophical question: if an AI writes the formal code, and another AI is used to explain or summarize that code, who verifies that the formal code actually represents the human mathematical intent?"},{"t":2494,"s":1,"x":"That is the crux of the epistemological issue. An AI system cannot peer-review itself. It cannot verify mathematical meaning; it only verifies formal structure."},{"t":2505,"s":0,"x":"So if an underlying definition encoded into Lean contains a semantic flaw—let's say it defines a concept of density that doesn't actually align with the true measure-theoretic definition of natural density we discussed earlier—the AI toolchain will happily generate a perfectly verified, logically flawless proof of a completely irrelevant statement."},{"t":2526,"s":1,"x":"It's like having a flawless grammar checker. The AI can tell you that a sentence is perfectly structured with impeccable syntax and punctuation, but the grammar checker has no idea if the sentence is actually expressing the intended truth."},{"t":2537,"s":0,"x":"Formal verification is not mathematical validation."},{"t":2541,"s":1,"x":"A Lean proof certifies the formal statement within the confines of the code, but the correspondence between that formalized code and the informal real-world mathematical theorem is an entirely separate matter."},{"t":2554,"s":0,"x":"This means human auditing hasn't been replaced by AI; it has just been structurally redirected."},{"t":2560,"s":1,"x":"Right. Human reviewers no longer need to check every single deductive inference step by step; Lean handles the heavy lifting of the deduction. But humans must now audit the semantic definitions."},{"t":2571,"s":0,"x":"We have to audit the interface between the formal code and the informal mathematical reality."},{"t":2577,"s":1,"x":"Without that human validation of meaning, a formally verified proof remains an unrefereed computational artifact."},{"t":2584,"s":0,"x":"So when we step back and look at this entire deep dive—from the sublinear trap to the Diophantine locks, difference inequalities, logarithmic density, and finally to modular reachability—what is the core takeaway for the listener auditing the $3x + 1$ problem as of late 2026?"},{"t":2603,"s":1,"x":"The problem is defined by a profound topological asymmetry built into the very fabric of deterministic arithmetic. When you look backward from a target, the predecessor tree is topologically pervasive and structurally organized. Hallqvist's formalization proves it is entirely devoid of local modular obstructions; the backward tree stretches out and reaches everywhere."},{"t":2630,"s":0,"x":"But the moment you turn around—the moment you look forward in time from a starting input—that exact same deterministic arithmetic disperses chaotically."},{"t":2639,"s":1,"x":"Exactly. We have logarithmic density descent from Tao's work heavily suppressing the outliers."},{"t":2645,"s":0,"x":"But actual positive natural density remains trapped behind the sublinear barrier, currently relegated to unrefereed preprints and asymptotic bounds with massive denominators. The forward trajectory remains analytically opaque."},{"t":2658,"s":1,"x":"It does."},{"t":2659,"s":0,"x":"And I want to leave you, the listener, with a final thought to explore on your own. We are taught to view the number line as this static, eternal sequence of integers just sitting there. But this dynamical system reveals it as a dynamic, directional terrain."},{"t":2674,"s":1,"x":"That's a great perspective."},{"t":2675,"s":0,"x":"If deterministic arithmetic is functionally, chaotically opaque when moving forward in time, but highly structured and guaranteed when moving backward, does time directionality exist within pure number theory? Are there other mathematical systems out there where the sheer arrow of computational time dictates our very ability to perceive structural truth?"},{"t":2695,"s":1,"x":"It's a fascinating question."},{"t":2697,"s":0,"x":"It makes you wonder if the integers themselves have a current flowing in a direction we are only just beginning to map. Think about that next time you look at a simple arithmetic equation."}];
 let END = 2707; // 45:07 — replaced by the real audio duration once metadata loads
 
 // ---------- Editorial notes (timestamps inferred from the surrounding dialogue) ----------
@@ -219,7 +316,7 @@ const NOTES = [
   { t: 165, x: String.raw`Lower natural density is defined as $\underline{d}(A) = \liminf_{x \to \infty} \frac{\pi(x)}{x}$. Any sublinear growth bound $\pi(x) \ge x^\theta$ with $\theta < 1$ forces the implied density to exactly zero, since $\lim_{x \to \infty} \frac{x^\theta}{x} = \lim_{x \to \infty} \frac{1}{x^{1-\theta}} = 0$. "Almost everything" by raw count can still mean "density zero".` },
   { t: 207, x: String.raw`A correction to the spoken audio: it said the denominator becomes $x^{0.1}$, but since $1 - 0.9999 = 0.0001$, the correct residual exponent is $x^{0.0001}$. In either formulation the denominator diverges to infinity, crushing the ratio to zero — the conclusion is unchanged.` },
   { t: 297, x: String.raw`Formally, the accelerated Syracuse map acts only on odd positive integers: $T(n) = \frac{3n + 1}{2^{v_2(3n + 1)}}$, where $v_2$ extracts every factor of $2$ in one step. It compresses the usual Collatz iteration into single odd-to-odd jumps.` },
-  { t: 410, x: String.raw`The exact identity forced on a hypothetical cycle of $k$ odd steps and $K$ total divisions by $2$ is: $$n_0 (2^K - 3^k) = \sum_{j=0}^{k-1} 3^{k - 1 - j}\, 2^{a_j},$$ where $a_j$ is the cumulative count of divisions by $2$ prior to step $j$. Since the summation consists entirely of positive integers, the coefficient $(2^K - 3^k)$ must be strictly positive.` },
+  { t: 410, x: String.raw`The exact identity forced on a hypothetical cycle of $k$ odd steps and $K$ total divisions by $2$ is: $$n_0 (2^K - 3^k) = \sum_{j=0}^{k-1} 3^{k - 1 - j}, 2^{a_j},$$ where $a_j$ is the cumulative count of divisions by $2$ prior to step $j$. Since the summation consists entirely of positive integers, the coefficient $(2^K - 3^k)$ must be strictly positive.` },
   { t: 431, x: String.raw`Taking base-2 logarithms of $2^K > 3^k$ gives $\frac{K}{k} > \log_2 3 \approx 1.58496$. This "supercritical regime" is a strict structural requirement: every hypothetical non-trivial cycle must average strictly more than $\log_2 3$ divisions by $2$ per odd step.` },
   { t: 486, x: String.raw`The Diophantine prong treats the cycle identity as an exact discrete lock: fixing a specific parity sequence determines all coefficients, reducing the question to whether the sum is an exact integer multiple of $(2^K - 3^k)$. The obstacle is that the number of possible parity sequences grows exponentially with cycle length — a combinatorial explosion that makes exhaustive discrete testing impossible.` },
   { t: 567, x: String.raw`The residual gap is $\Lambda = K \ln 2 - k \ln 3$. Because $2^K > 3^k$ in the supercritical regime, $\Lambda$ is strictly positive; it measures how closely powers of $2$ and $3$ must approximate each other for a cycle to hide above the computationally verified range.` },
@@ -238,82 +335,116 @@ const NOTES = [
   { t: 2379, x: String.raw`The epistemology of formal verification: Lean certifies internal logical consistency — that a deduction follows strictly from stated axioms (<code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code>) — with mechanical certainty. But it cannot establish that the formalized definitions faithfully represent the intended mathematical statement. An AI can write a formalization and another AI can explain it, but neither can certify its own interpretation. Human review is redirected, not replaced: humans audit the definitions and the informal-formal interface, since a perfectly verified proof of a mis-stated claim is still worthless.` }
 ];
 
-// ---------- Build dialogue DOM (editorial notes stripped; they live below) ----------
-const main = document.getElementById("transcript");
-const frag = document.createDocumentFragment();
+// ---------- Shared helpers ----------
+const mmss = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
 
+// Strip the inline editorial asides from the turns: the commentary now lives
+// in the document stream as its own blocks, not as parentheticals.
 function fmtHTML(raw) {
   let s = raw;
-  s = s.replace(/\s*\*\((Editorial note:[\s\S]*?)\)\*/g, " "); // notes moved to the bottom viewport
+  s = s.replace(/\s*\*\(Editorial note:[\s\S]*?\)\*/g, "");
   s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
-  s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,;:)]|$)/g, "$1<em>$2</em>");
+  s = s.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
   return s;
 }
 
-const segs = [];
-TURNS.forEach(turn => {
+// ---------- Build the unified document stream ----------
+const main = document.getElementById("transcript");
+const doc = document.getElementById("doc");
+const frag = document.createDocumentFragment();
+
+// Anchor each note to the turn it annotates (turns are sorted; note t matches a turn t).
+const anchored = NOTES.map(note => {
+  let anchor = 0;
+  for (let i = 0; i < TURNS.length; i++) {
+    if (TURNS[i].t <= note.t) anchor = i; else break;
+  }
+  return { note, anchor };
+});
+
+// A note is "live" while its anchor turn is being spoken:
+// its window runs from its own t to the start of the next turn.
+const noteBlocks = anchored.map(({ note, anchor }, i) => {
+  const nextT = (TURNS[anchor + 1] && TURNS[anchor + 1].t > note.t) ? TURNS[anchor + 1].t : note.t + 20;
+  return { t: note.t, end: Math.max(nextT, note.t + 8), body: note.x };
+});
+
+const blocks = []; // unified, ordered rendering + sync model
+let noteIdx = 0;
+TURNS.forEach((turn, ti) => {
   const p = document.createElement("p");
   p.className = "turn " + (turn.s === 0 ? "w" : "m");
   p.innerHTML = fmtHTML(turn.x);
-  segs.push({ t: turn.t, el: p });
+  p.title = "Jump to " + mmss(turn.t);
+  blocks.push({ kind: "turn", t: turn.t, el: p });
   frag.appendChild(p);
   frag.appendChild(document.createTextNode("\n"));
+  while (noteIdx < anchored.length && anchored[noteIdx].anchor === ti) {
+    const nb = noteBlocks[noteIdx];
+    const aside = document.createElement("aside");
+    aside.className = "note";
+    aside.innerHTML =
+      '<div class="note-head"><span class="note-tag">Editor\u2019s note</span>' +
+      '<button class="note-chip" title="Jump to this point">' + mmss(nb.t) + "</button></div>" +
+      '<div class="note-body">' + nb.body + "</div>" +
+      '<div class="study"><span>Paused for study \u2014 take your time.</span>' +
+      '<button class="resume" type="button">Resume \u25b8</button></div>';
+    aside.title = "Jump to " + mmss(nb.t);
+    blocks.push({ kind: "note", t: nb.t, end: nb.end, el: aside, noteIndex: noteIdx });
+    frag.appendChild(aside);
+    frag.appendChild(document.createTextNode("\n"));
+    noteIdx++;
+  }
 });
 main.appendChild(frag);
 
-// ---------- Build notes DOM ----------
-const noteList = document.getElementById("noteList");
-const noteEls = [];
-NOTES.forEach(note => {
-  const card = document.createElement("div");
-  card.className = "note-card";
-  const time = document.createElement("span");
-  time.className = "note-time";
-  time.textContent = String(Math.floor(note.t / 60)).padStart(2, "0") + ":" + String(note.t % 60).padStart(2, "0");
-  const body = document.createElement("div");
-  body.innerHTML = note.x;
-  card.appendChild(time);
-  card.appendChild(body);
-  noteEls.push({ t: note.t, el: card });
-  noteList.appendChild(card);
-});
+const turnBlocks = blocks.filter(b => b.kind === "turn");
+const noteEls = blocks.filter(b => b.kind === "note");
 
-// ---------- KaTeX ----------
-function renderMath() {
-  const opts = {
-    delimiters: [
-      { left: "$$", right: "$$", display: true },
-      { left: "\\[", right: "\\]", display: true },
-      { left: "$", right: "$", display: false },
-      { left: "\\(", right: "\\)", display: false }
-    ],
-    throwOnError: false
-  };
-  renderMathInElement(main, opts);
-  renderMathInElement(noteList, opts);
-}
+// ---------- KaTeX (CDN; graceful fallback: raw $...$ remains readable) ----------
 window.addEventListener("load", () => {
-  if (typeof renderMathInElement !== "undefined") renderMath();
+  if (typeof renderMathInElement !== "undefined") {
+    renderMathInElement(main, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false
+    });
+  }
 });
 
-// ---------- Controls & audio ----------
-const scrub   = document.getElementById("scrub");
-const clock   = document.getElementById("cur");
+// ---------- Note ticks on the scrub bar ----------
+const ticks = document.getElementById("ticks");
+noteEls.forEach(nb => {
+  const d = document.createElement("div");
+  d.className = "tick";
+  d.style.left = (nb.t / END * 100) + "%";
+  ticks.appendChild(d);
+});
+
+// ---------- Transport & audio ----------
+const scrub = document.getElementById("scrub");
+const clockEl = document.getElementById("cur");
 const totalEl = document.getElementById("total");
 const playBtn = document.getElementById("playBtn");
-const audio   = document.getElementById("audio");
-const tWrap   = document.getElementById("transcriptWrap");
-const nWrap   = document.getElementById("notesWrap");
-const mmss    = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+const pauseChk = document.getElementById("pauseAtNotes");
+const pill = document.getElementById("followPill");
+const audio = document.getElementById("audio");
 
 let playing = false;
 let tPos = 0;
 let rafId = null;
-let lastTs = null;      // fallback wall clock (only if the MP3 fails to load)
+let lastTs = null;        // fallback wall clock (used when DeepDive.mp3 is absent/blocked)
 let audioOK = true;
-let activeIdx = -1;
+let activeTurn = -1;
 let activeNote = -1;
-let scrollingFromScrub = false;
+let follow = true;              // passive listening: the page tracks the playhead
+let programmaticUntil = 0;     // timestamps our own scrolling, so it is never mistaken for user input
+const isProgrammatic = () => performance.now() < programmaticUntil;
+const studied = new Set(); // notes already auto-paused on this pass
 
 audio.addEventListener("error", () => { audioOK = false; });
 audio.addEventListener("loadedmetadata", () => {
@@ -321,55 +452,80 @@ audio.addEventListener("loadedmetadata", () => {
     END = Math.ceil(audio.duration);
     scrub.max = END;
     totalEl.textContent = "/ " + mmss(END);
+    ticks.querySelectorAll(".tick").forEach((d, i) => {
+      d.style.left = (noteEls[i].t / END * 100) + "%";
+    });
   }
 });
 audio.addEventListener("ended", () => setPlaying(false));
 
-function segmentIndexAt(t) {
-  let lo = 0, hi = segs.length - 1, res = 0;
+function turnIndexAt(t) {
+  let lo = 0, hi = turnBlocks.length - 1, res = 0;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    if (segs[mid].t <= t) { res = mid; lo = mid + 1; } else { hi = mid - 1; }
+    if (turnBlocks[mid].t <= t) { res = mid; lo = mid + 1; } else { hi = mid - 1; }
   }
   return res;
 }
 function noteIndexAt(t) {
-  let lo = 0, hi = noteEls.length - 1, res = -1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    if (noteEls[mid].t <= t) { res = mid; lo = mid + 1; } else { hi = mid - 1; }
+  for (let i = noteEls.length - 1; i >= 0; i--) {
+    if (t >= noteEls[i].t && t < noteEls[i].end) return i;
   }
-  return res;
+  return -1;
 }
 
-function setActive(idx, scroll) {
-  if (idx !== activeIdx) {
-    if (activeIdx >= 0) segs[activeIdx].el.classList.remove("active");
-    activeIdx = idx;
-    segs[idx].el.classList.add("active");
-  }
-  if (scroll) {
-    scrollingFromScrub = true;
-    segs[idx].el.scrollIntoView({ behavior: "smooth", block: "center" });
-    window.setTimeout(() => { scrollingFromScrub = false; }, 500);
-  }
+function setActiveTurn(idx) {
+  if (idx === activeTurn) return;
+  if (activeTurn >= 0) turnBlocks[activeTurn].el.classList.remove("active");
+  activeTurn = idx;
+  turnBlocks[idx].el.classList.add("active");
 }
-
-function setNote(idx, scroll) {
+function setActiveNote(idx) {
   if (idx === activeNote) return;
   if (activeNote >= 0) noteEls[activeNote].el.classList.remove("active");
   activeNote = idx;
-  if (idx < 0) return;
-  noteEls[idx].el.classList.add("active");
-  if (scroll) noteEls[idx].el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  if (idx >= 0) noteEls[idx].el.classList.add("active");
+}
+function updatePill() {
+  pill.classList.toggle("show", playing && !follow);
 }
 
-function updateUI(t, scroll) {
-  scrub.value = Math.round(Math.min(t, END));
-  clock.textContent = mmss(Math.round(Math.min(t, END)));
-  scrub.style.setProperty("--fill", (t / END * 100) + "%");
-  setActive(segmentIndexAt(t), scroll);
-  setNote(noteIndexAt(t), scroll);
+function updateUI(t) {
+  const tt = Math.min(t, END);
+  scrub.value = Math.round(tt);
+  clockEl.textContent = mmss(Math.round(tt));
+  scrub.style.setProperty("--fill", (tt / END * 100) + "%");
+  setActiveTurn(turnIndexAt(tt));
+  setActiveNote(noteIndexAt(tt));
+  ticks.querySelectorAll(".tick").forEach((d, i) => {
+    d.classList.toggle("past", noteEls[i].t <= tt);
+  });
+}
+
+// Smooth scroll-follow: ease the viewport toward the live block each frame.
+function followStep() {
+  if (!follow || !playing) return;
+  const targetBlock = (activeNote >= 0) ? noteEls[activeNote] : turnBlocks[activeTurn];
+  if (!targetBlock) return;
+  const target = targetBlock.el.offsetTop - doc.clientHeight * 0.26;
+  const delta = target - doc.scrollTop;
+  if (Math.abs(delta) < 1) return;
+  programmaticUntil = performance.now() + 150;
+  doc.scrollTop += delta * 0.12;
+}
+
+// Optional study pause: narration halts at an unstudied note and waits for you.
+function maybeStudyPause(t) {
+  if (!playing || !pauseChk.checked || activeNote < 0) return;
+  if (studied.has(activeNote)) return;
+  studied.add(activeNote);
+  setPlaying(false);
+  const aside = noteEls[activeNote].el;
+  aside.classList.add("studying");
+  aside.querySelector(".resume").onclick = e => {
+    e.stopPropagation();
+    setPlaying(true);
+  };
 }
 
 function tick(ts) {
@@ -377,81 +533,127 @@ function tick(ts) {
   if (audioOK && !audio.paused) {
     tPos = audio.currentTime;
   } else {
-    // Fallback wall clock if the MP3 is missing or blocked
     if (lastTs !== null) tPos = Math.min(END, tPos + (ts - lastTs) / 1000);
     lastTs = ts;
   }
-  updateUI(tPos, true);
+  updateUI(tPos);
+  maybeStudyPause(tPos);
+  followStep();
   if (tPos >= END - 0.05) { setPlaying(false); return; }
-  rafId = window.requestAnimationFrame(tick);
+  rafId = requestAnimationFrame(tick);
 }
 
 function setPlaying(on) {
   playing = on;
   playBtn.innerHTML = on ? "&#10074;&#10074;" : "&#9654;";
   playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+  document.body.classList.toggle("playing", on);
   if (on) {
-    if (!audioOK && tPos >= END) tPos = 0;
+    noteEls.forEach(nb => nb.el.classList.remove("studying"));
     lastTs = null;
-    rafId = window.requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
     if (audioOK) {
       const p = audio.play();
-      if (p && p.catch) p.catch(() => setPlaying(false));
+      if (p && p.catch) p.catch(() => {});
     }
   } else {
-    if (rafId !== null) { window.cancelAnimationFrame(rafId); rafId = null; }
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
     if (audioOK) audio.pause();
   }
+  updatePill();
 }
 
 playBtn.addEventListener("click", () => {
   if (!playing && tPos >= END - 0.05) {
     tPos = 0;
+    studied.clear();
     if (audioOK) audio.currentTime = 0;
   }
   setPlaying(!playing);
 });
 
+// Click any turn or note (or its timestamp chip): seek there and re-engage following.
+blocks.forEach(b => {
+  b.el.addEventListener("click", () => seekTo(b.t, true));
+});
+function seekTo(t, engage) {
+  tPos = Math.max(0, Math.min(t, END));
+  if (audioOK && audio.readyState >= 1) audio.currentTime = tPos;
+  lastTs = null;
+  updateUI(tPos);
+  if (engage) {
+    follow = true;
+    programmaticUntil = performance.now() + 600;
+    const target = (activeNote >= 0 ? noteEls[activeNote] : turnBlocks[activeTurn]).el;
+    doc.scrollTo({ top: Math.max(0, target.offsetTop - doc.clientHeight * 0.3), behavior: "smooth" });
+    updatePill();
+  }
+}
+
+// Scrubbing steers playback: re-engage following.
+scrub.addEventListener("input", () => seekTo(Number(scrub.value), true));
+
+// Keyboard: space toggles, arrows nudge by 10s.
 window.addEventListener("keydown", e => {
   if (e.code === "Space" && e.target !== scrub) {
     e.preventDefault();
     playBtn.click();
+  } else if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
+    e.preventDefault();
+    disengage();
+    seekTo(tPos + (e.code === "ArrowRight" ? 10 : -10), false);
   }
 });
 
-// Manual scrubbing: seeks the audio and continues playback from the new spot
-scrub.addEventListener("input", () => {
-  tPos = Number(scrub.value);
-  if (audioOK && audio.readyState >= 1) audio.currentTime = tPos;
-  lastTs = null;
-  updateUI(tPos, true);
+// ---------- User intent: step aside gracefully, never fight ----------
+function disengage() {
+  if (playing && follow) {
+    follow = false;
+    updatePill();
+  }
+}
+doc.addEventListener("wheel", disengage, { passive: true });
+doc.addEventListener("touchstart", disengage, { passive: true });
+doc.addEventListener("keydown", e => {
+  if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"].includes(e.key)) disengage();
+});
+doc.addEventListener("scroll", () => {
+  if (playing && !isProgrammatic()) disengage();
+}, { passive: true });
+
+pill.addEventListener("click", () => {
+  follow = true;
+  updatePill();
+  seekTo(tPos, false);
+  follow = true; // seekTo with engage=false does not touch follow
 });
 
-// Gentle reverse sync while paused: scrolling the dialogue moves the clock
-let scrollTimer = null;
-tWrap.addEventListener("scroll", () => {
-  if (playing || scrollingFromScrub) return;
-  if (scrollTimer) return;
-  scrollTimer = window.requestAnimationFrame(() => {
-    scrollTimer = null;
-    if (playing || scrollingFromScrub) return;
-    const mid = tWrap.clientHeight / 2;
-    let idx = 0;
-    for (let i = 0; i < segs.length; i++) {
-      if (segs[i].el.getBoundingClientRect().top <= mid + tWrap.getBoundingClientRect().top) idx = i; else break;
+// Gentle reverse sync while paused: scrolling the manuscript moves the playhead,
+// so when you press play again, narration resumes exactly where you are reading.
+let reverseSyncScheduled = false;
+doc.addEventListener("scroll", () => {
+  if (playing || isProgrammatic() || reverseSyncScheduled) return;
+  reverseSyncScheduled = true;
+  requestAnimationFrame(() => {
+    reverseSyncScheduled = false;
+    if (playing || isProgrammatic()) return;
+    const top = doc.getBoundingClientRect().top + doc.clientHeight * 0.3;
+    let best = blocks[0], bestDist = Infinity;
+    for (const b of blocks) {
+      const d = Math.abs(b.el.getBoundingClientRect().top - top);
+      if (d < bestDist) { best = b; bestDist = d; }
     }
-    const t = segs[idx].t;
-    if (t !== tPos) {
-      tPos = t;
-      if (audioOK && audio.readyState >= 1) audio.currentTime = t;
-      updateUI(t, false);
+    if (best && best.t !== tPos) {
+      tPos = best.t;
+      if (audioOK && audio.readyState >= 1) audio.currentTime = tPos;
+      updateUI(tPos);
     }
   });
 }, { passive: true });
 
 // Init
 scrub.style.setProperty("--fill", "0%");
-setActive(0, false);
+updateUI(0);
 </script>
 </body>
 </html>
