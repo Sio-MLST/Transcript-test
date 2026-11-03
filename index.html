@@ -273,7 +273,22 @@ const getEditorT = () => editorOK ? editor.currentTime : vEditor;
 function setDeepT(t) { if (deepOK) { try { deep.currentTime = t; } catch (e) {} } vDeep = t; }
 function setEditorT(t) { if (editorOK) { try { editor.currentTime = t; } catch (e) {} } vEditor = t; }
 function playDeep() { if (deepOK) { const p = deep.play(); if (p && p.catch) p.catch(() => {}); } }
-function playEditor() { if (editorOK) { const p = editor.play(); if (p && p.catch) p.catch(() => {}); } }
+function playEditor() {
+  if (editorOK) {
+    const p = editor.play();
+    if (p && p.catch) p.catch(() => console.warn("Editor.mp3 play() was blocked by the browser."));
+  }
+}
+// Browsers only allow programmatic play() on an audio element after it has
+// been "unlocked" by a user gesture. Since handoffs happen mid-playback with
+// no fresh gesture, we quietly unlock the idle element during each click:
+// start it muted-free under the gesture, then immediately pause it again.
+function ensureUnlocked(a) {
+  if (!a.paused || a.dataset.unlocked) return;
+  a.dataset.unlocked = "1";
+  const p = a.play();
+  if (p && p.then) p.then(() => { if (!a.dataset.hold) a.pause(); }).catch(() => { a.dataset.unlocked = ""; });
+}
 function pauseAllAudio() { deep.pause(); editor.pause(); }
 function firstCueAfter(t) {
   let i = 0;
@@ -423,7 +438,8 @@ function stopAll() {
 // ---------- Click routing: the text is the entire interface ----------
 blocks.forEach(b => {
   b.el.addEventListener("click", () => {
-    if (mode === "waiting") return; // mid-handoff: ignore for the ~350ms splice window
+    if (mode === "waiting") { ensureUnlocked(deep); ensureUnlocked(editor); return; } // mid-handoff: prep, but ignore input
+    ensureUnlocked(b.kind === "turn" ? editor : deep); // unlock only the track we are NOT about to play
 
     if (b.kind === "turn") {
       if ((mode === "deep" || mode === "paused-deep") && activeTurnIdx === b.idx) {
