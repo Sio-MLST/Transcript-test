@@ -1,66 +1,667 @@
-// Transcript data for Custom.mp3. Edit timings here only.
-// start: segment start in milliseconds within Custom.mp3.
-// Paragraphs starting with "# " render as section headings.
+// Transcript data for the narration MP3 (filename is set in index.html <audio src>).
+// Format (same for future transcripts):
+//   who:   "Cruz" = main thread, plays continuously
+//          "Koda" = aside card, skipped unless clicked (label sets the card tag)
+//   start: segment start in ms
+//   paras: strings, or { t: seconds, x: text } for exact paragraph timing.
+//          "# " prefix = heading; $...$ / $$...$$ = KaTeX; <em> allowed.
 window.SEGMENTS = [
-{ who: "Cruz", start: 0, paras: [
-"# The Collatz Conjecture. What Remains.",
-"Four lines of work define the current state of the 3x + 1 problem: constraints on periodic orbits, lower bounds on the set of integers known to reach 1, almost-sure descent, and a cluster of 2026 results on modular reachability and positive density. Some of these are refereed theorems, some are Lean formalizations, and some are preprints still under examination. What follows sets out what each actually proves and where each one stops.",
-"# Periodic orbits and cycle constraints",
-"Any non-trivial cycle satisfies an exact integer identity between powers of 2 and powers of 3, and the identity forces the ratio of halvings to odd steps above log₂ 3 ≈ 1.585. Three methods extract constraints from it. Diophantine analysis treats it as an exact equation in integers. Archimedean analysis takes logarithms and measures how close the number of halvings times log 2 comes to the number of odd steps times log 3; call that small positive gap Λ. If Λ is not extremely small, the smallest element of the cycle is forced to be small, and computation has already ruled out cycles among small numbers. Baker-type estimates on linear forms in logarithms supply the missing piece: they prove that Λ cannot be too small."
-]},
-{ who: "Koda", start: 92000, paras: [
-"For a cycle of $k$ odd elements under the accelerated Syracuse map, let $a_i$ be the number of factors of 2 removed at step $i$, let $K = \\sum a_i$, and let $A_j = \\sum_{i<j} a_i$. Then $$n_0\\,(2^K - 3^k) = \\sum_{j=0}^{k-1} 3^{\\,k-1-j}\\, 2^{A_j}.$$ Positivity of $n_0$ forces $K/k > \\log_2 3$. With $\\Lambda = K\\log 2 - k\\log 3$, the elementary Archimedean inequality gives $n_{\\min} < k/(3\\Lambda)$.",
-"The two-logarithm estimates of Laurent, Mignotte and Nesterenko (1995) give roughly $\\log\\Lambda \\ge -C(\\log K)^2$ for an explicit constant $C$. Substituting this into the Archimedean inequality yields an explicit ceiling on the smallest element of any cycle of given length."
-]},
-{ who: "Cruz", start: 177000, paras: [
-"Combining these methods has excluded large classes of cycles. Ray Steiner proved in 1977 that the only cycle with a single local minimum is the trivial one. John Simons and Benne de Weger introduced m-cycles, meaning cycles with exactly m local minima, and in 2005, using Baker-type estimates with lattice-basis reduction, excluded all non-trivial m-cycles with m up to 68. Christian Hercher extended this to m up to 91 in 2023, with a published corrigendum. These exclusions lean on the computer-verified range of the conjecture, and the excluded m grows as that range grows. Cycles of arbitrary complexity are out of reach. When the number of local minima grows with the cycle length, the argument needs lower bounds for linear forms in many logarithms, and the constants in those bounds grow rapidly with the number of logarithms. The resulting ceiling on the smallest element then lies above the verified range, and no contradiction follows.",
-"# Predecessor counting and the density gap",
-"A separate line of work bounds from below the number of integers up to x known to reach 1, written π(x). Richard Crandall gave the first bound of the form x to a positive power in 1978. Ilia Krasikov introduced systems of difference inequalities in 1989 and obtained the exponent 0.43, and Günther Wirsching reached 0.48 with a larger system. David Applegate and Jeffrey Lagarias obtained 0.65 by computer-assisted tree search, then 0.81 by applying nonlinear programming to Krasikov’s inequalities. Lagarias then joined Krasikov to produce the current peer-reviewed benchmark, published in 2003: π(x) ≥ x^0.84 for all sufficiently large x. This bounds the size of the basin, not its proportion. Any exponent below 1, however close, is compatible with the basin occupying a vanishing share of the integers."
-]},
-{ who: "Koda", start: 302000, paras: [
-"The target quantity is the lower natural density $\\liminf_{x\\to\\infty} \\pi(x)/x$. The limit inferior is used because the ordinary limit may not exist; the ratio could oscillate forever. A positive lower density means the basin holds at least a fixed fraction of the integers at every scale, not merely along some favourable sequence of scales. That is strictly more than a positive upper density would give."
-]},
-{ who: "Cruz", start: 333000, paras: [
-"Recent preprints have not moved this boundary. Chao Liu’s preprint of December 2025 reportedly announced 0.946 in its first version; the current second version proves only 0.3227, below even Krasikov’s 1989 exponent. L. Mazur announced in July 2026 a Lean-formalized bound of x^0.90 for predecessor sets of targets not divisible by 3, which remains unrefereed."
-]},
-{ who: "Koda", start: 361000, paras: [
-"The restriction to targets not divisible by 3 comes from the forward map. The value $3m+1$ is always $\\equiv 1 \\pmod 3$, so no odd step lands on a multiple of 3. A multiple of 3 has no odd predecessors, and its backward tree is a single chain of doublings. The restriction falls on the root of the tree; predecessors of an admissible root can themselves be multiples of 3."
-]},
-{ who: "Cruz", start: 400000, paras: [
-"# Stopping times and almost-sure descent",
-"Forward results concern descent, which is weaker than convergence. Riho Terras proved in 1976 that the integers with a finite stopping time, meaning some iterate falls below the starting value, have natural density 1. A single descent does not rule out later growth or entry into a non-trivial cycle. Ivan Korec proved in 1994, also in natural density, that for every exponent above log 3 / log 4 ≈ 0.7925, almost every n has an iterate below n to that power. Terence Tao proved in 2022 a much stronger statement: for any function tending to infinity, however slowly, almost every orbit eventually falls below that function of its starting value. Tao’s theorem holds in logarithmic density, not natural density. It does not assert that orbits reach 1, and Tao notes that upgrading to natural density is plausible but is not obtained."
-]},
-{ who: "Koda", start: 467000, paras: [
-"Logarithmic density weights each integer $n$ by $1/n$ and normalizes by $\\sum_{n\\le x} 1/n \\approx \\log x$. The weighting suppresses the contribution of large integers, which is what lets Tao’s first-passage random variable stabilise. Natural density 1 implies logarithmic density 1, but not conversely: a set can have logarithmic density 1 while its natural density fails to exist."
-]},
-{ who: "Cruz", start: 494000, paras: [
-"Two 2026 preprint lines claim the natural-density version. L. Mazur, in July 2026, claims descent below every diverging threshold for almost all integers in natural density, within a logarithmic number of steps, accompanied by a Lean formalization. I. A. Shaik, in a preprint revised in October 2026, claims polylogarithmic descent in natural density with a logarithmic leading time. Both are unrefereed, and both are descent claims rather than claims of convergence to 1.",
-"# Modular reachability",
-"In November 2026, André Hallqvist released a Lean 4 formalization titled Effective Remainder Everywhere. It proves that for every modulus N, every target w not divisible by 3, and every residue class modulo N, some member of that class reaches w, with an explicit bound on how large that member needs to be. Every residue class therefore contains infinitely many predecessors of w, including the classes divisible by 3, and the backward tree has no local congruence obstruction. The formalization uses only the Lean core library and is repository-hosted, not peer reviewed."
-]},
-{ who: "Koda", start: 575000, paras: [
-"The precise statement: for every $N \\ge 1$, every $w$ with $3 \\nmid w$, and every residue $r$, there exists $n \\equiv r \\pmod N$ such that $n$ reaches $w$, and $$n \\le w \\cdot 2^{2^{48N^4}}.$$ That is a double exponential: the top exponent is $48N^4$, and 2 raised to it is itself the exponent of 2.",
-"The argument separates the modulus into its 2-adic and 3-adic part, handled through parity words of the shortcut map, and the part coprime to 6, handled through the fibres of the backward closure, together with a minimal-period argument showing that translation by 1 acts as a stabilizer."
-]},
-{ who: "Cruz", start: 649000, paras: [
-"A small case shows what the theorem guarantees. Take target 11, modulus 7, and ask for a predecessor divisible by 7. The answer is 7 itself, which reaches 11 in two steps. The theorem’s double-exponential bound, applied to the same question, promises a predecessor below roughly 10^(10^34692). The gap measures the slack in the construction, and the bound is not a search range. But a finite, explicit bound for every modulus and every residue is a guarantee that did not exist before, and that guarantee is the content of the result.",
-"What it governs is the backward tree, not the fate of forward trajectories. Hallqvist has shown that the same construction carries over to the 5x + 1 map, and that is clarifying. In 5x + 1 the backward tree is equally pervasive, yet the forward dynamics have several distinct cycles. Modular reachability is a property of the backward tree, and it holds independently of where forward orbits end up."
-]},
-{ who: "Koda", start: 713000, paras: [
-"For $5x+1$, the bound is $w \\cdot 2^{2^{105N^5}}$, again a double exponential, now with top exponent $105N^5$. The map has at least three known cycles, with smallest odd elements 1, 13, and 17, and some orbits appear to diverge."
-]},
-{ who: "Cruz", start: 743000, paras: [
-"# Positive-density claims of 2026",
-"Several 2026 preprints claim that a positive proportion of integers reach 1, which is exactly what every counting bound leaves open. L. Mazur, in a September 2026 manuscript with a Lean formalization, claims an explicit positive constant c such that, for every sufficiently large X, at least cX integers below X reach 1 within 10.46 log n steps of the ordinary map. A companion preprint extends this to predecessors: for every fixed a not divisible by 3, the integers reaching a have positive lower natural density, without assuming that a itself reaches 1. I. A. Shaik claims positive lower density of convergence at every rate above 3 / log(4/3), about 10.43 ordinary steps per log of the starting value. Kelvin Lau, in an October 2026 preprint, refines Mazur’s construction explicitly: for every N, the number of odd integers below N that reach 1 within the same step count is at least N divided by a tower, rounded down.",
-"The tower is 2^2^2^163. That denominator is a triply iterated power of 2, so the bound is zero for every N below it, and the claim is purely asymptotic. None of these preprints has been refereed.",
-"Mazur’s work was developed with AI agents, and Lau’s was obtained and formalized with an AI prover. Such systems can generate code, explore proof strategies, and explain what a Lean statement says, but one automated system checking another’s output is not peer review. A compiled Lean proof establishes that a formal statement follows from its encoded definitions. Whether that statement is the theorem the paper claims is a question for human mathematicians, and only their review can settle it."
-]},
-{ who: "Koda", start: 864000, paras: [
-"Lean checks each deduction against the encoded definitions and the axioms in use, typically propositional extensionality, classical choice, and quotient soundness. If a formalization encodes a definition of density, reachability, or step count that departs subtly from the standard one, the proof compiles without error and certifies a different theorem. Machine checking, human auditing of the specification, and archival peer review are three separate steps. For these preprints, only the first is complete."
-]},
-{ who: "Cruz", start: 900000, paras: [
-"# What remains",
-"Cycles are excluded up to 91 local minima, not beyond. The refereed bound on the basin stands at x^0.84. Descent below any diverging threshold is proved in logarithmic density, and the natural-density versions, together with positive-density convergence to 1, rest on preprints. Hallqvist’s formalization, if it holds up under review, removes every local modular obstruction in the backward tree.",
-"The backward structure of the problem is increasingly well understood. Forward convergence is not. Whether the set of integers reaching 1 has positive lower natural density is not settled by any peer-reviewed theorem, and whether it contains every positive integer is the Collatz conjecture itself."
-]}
+ {
+  "who": "Cruz",
+  "start": 0,
+  "paras": [
+   {
+    "t": 0,
+    "x": "# The Collatz Conjecture."
+   },
+   {
+    "t": 2,
+    "x": "# What Remains."
+   },
+   {
+    "t": 5,
+    "x": "Take any positive whole number. If it’s even, halve it. If it’s odd, triple it and add one. Then do the same thing again, and keep going. The conjecture says that no matter where you start, you eventually reach one."
+   },
+   {
+    "t": 22,
+    "x": "It takes ten seconds to state, and it has resisted proof for nearly a century. That alone isn’t unusual; plenty of problems are hard. What’s striking about this one is the shape of the progress. Over fifty years, mathematicians have proved real theorems about it, some of them deep. And yet every one of them stops just short, each in its own specific way."
+   },
+   {
+    "t": 45,
+    "x": "So that’s the question I want to follow here. Not just what has been proved, but why it all stops where it does. I think there’s a single answer, and it has to do with direction. By the end, I want to be able to say exactly what a proof would need, in terms precise enough that you could check a claimed proof against it."
+   },
+   {
+    "t": 64,
+    "x": "Along the way there will be tangents. Each one is announced, and each one ends by returning to the main thread. Nothing in the main thread depends on them, so if you skip them, you lose detail, not the argument."
+   },
+   {
+    "t": 76,
+    "x": "# Two directions"
+   },
+   {
+    "t": 79,
+    "x": "There are two ways to look at this problem."
+   },
+   {
+    "t": 82,
+    "x": "The first is forward. You pick a starting number and follow its orbit: halve, triple and add one, halve again. The conjecture is a forward statement. It says every orbit, followed far enough, arrives at one."
+   },
+   {
+    "t": 96,
+    "x": "The second is backward. You start at one and ask which numbers lead to it. One comes from two. Two comes from four. Four comes from eight, and also from one, which is the familiar loop. Sixteen comes from thirty-two, and also from five, since $3 \\cdot 5 + 1 = 16$. Keep going, and these predecessors form a tree that branches downward without end."
+   },
+   {
+    "t": 122,
+    "x": "The conjecture, in these terms, says the backward tree from one contains every positive integer. The forward view asks whether any orbit escapes. The backward view asks whether the tree misses anything. Those are the same question, but the tools that work in one direction don’t easily cross over to the other."
+   },
+   {
+    "t": 143,
+    "x": "That is the thread. Each result we meet looks in one direction or the other, and each time, I’ll ask the same two things: which direction it sees, and what it can’t see from there."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 155000,
+  "paras": [
+   {
+    "t": 155,
+    "x": "# Multiples of three"
+   },
+   {
+    "t": 159,
+    "x": "The tree has one structural feature that will come back later. Whenever you triple an odd number and add one, the result leaves a remainder of one when divided by three: $3n+1 \\equiv 1 \\pmod 3$. So no odd step ever lands on a multiple of three. A multiple of three has no odd predecessor at all; it can only be reached by halving, which means the tree above it is a single chain of doublings, and nothing else."
+   },
+   {
+    "t": 183,
+    "x": "That’s a restriction on where a branch can be rooted, not on what grows from it. Further along, the branches pass through multiples of three freely. This is why several results we’ll meet are stated for targets not divisible by three. The restriction falls on the root, and only on the root."
+   },
+   {
+    "t": 200,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 202000,
+  "paras": [
+   {
+    "t": 202,
+    "x": "# Part one. Cycles."
+   },
+   {
+    "t": 205,
+    "x": "Start forward, with the most concrete way for the conjecture to fail: a loop. A cycle of numbers, other than $1 \\to 4 \\to 2 \\to 1$, that returns to where it started and never reaches one."
+   },
+   {
+    "t": 218,
+    "x": "Going once around such a loop, you multiply by three at every odd step and divide by two at every halving, and you end up exactly where you began. For that to balance, the number of halvings, divided by the number of odd steps, has to sit just above $\\log_2 3 \\approx 1.585$."
+   },
+   {
+    "t": 238,
+    "x": "The key quantity is how close the balance comes to being exact. Take the number of halvings times $\\log 2$, and subtract the number of odd steps times $\\log 3$. What’s left is a small positive gap, called $\\Lambda$."
+   },
+   {
+    "t": 255,
+    "x": "An elementary inequality then says that the smallest number in the cycle must be less than the number of odd steps divided by $3\\Lambda$. So if $\\Lambda$ can’t be too small, the cycle’s smallest member is forced to be small. And small numbers have been checked by computer, with no new cycle among them."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 276000,
+  "paras": [
+   {
+    "t": 276,
+    "x": "# The cycle identity"
+   },
+   {
+    "t": 279,
+    "x": "Here is the exact equation behind that balance. Work with the shortcut map, which takes an odd number, triples it, adds one, and removes every factor of two at once. Suppose a cycle has $k$ odd elements. Let $a_i$ be the number of factors of two removed at step $i$, let $K = \\sum a_i$, and let $A_j = \\sum_{i<j} a_i$."
+   },
+   {
+    "t": 309,
+    "x": "Then $$n_0\\,(2^K - 3^k) = \\sum_{j=0}^{k-1} 3^{\\,k-1-j}\\, 2^{A_j}.$$ The right-hand side is positive, so the bracket on the left must be positive too. That is where the condition comes from: $K/k > \\log_2 3$."
+   },
+   {
+    "t": 337,
+    "x": "The same equation can be read three ways. As an exact relation among integers, it is a Diophantine problem. With logarithms taken, it becomes a statement about real magnitudes, which is where $\\Lambda$ and the inequality on the smallest element come from. And the third reading asks how closely powers of two and three can approximate each other at all, which is the subject of the next part of the main thread."
+   },
+   {
+    "t": 361,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 363000,
+  "paras": [
+   {
+    "t": 363,
+    "x": "The guarantee about $\\Lambda$ comes from Alan Baker’s theory of linear forms in logarithms, which measures how closely powers of two and three can approximate each other. In 1995, Laurent, Mignotte, and Nesterenko gave a sharp version for two logarithms. Roughly, $\\log \\Lambda \\ge -C\\,(\\log K)^2$ for a fixed constant $C$. Combined with the inequality, that gives an explicit ceiling on the smallest member of any cycle of a given length."
+   },
+   {
+    "t": 394,
+    "x": "This has ruled out large families of cycles. In 1977, Ray Steiner proved that the only cycle with a single local minimum is the trivial one. John Simons and Benne de Weger then classified cycles by their number of local minima. In 2005, combining Baker-type estimates with lattice reduction, they excluded every non-trivial cycle with up to 68. In 2023, Christian Hercher pushed that to 91, and later published a correction."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 428000,
+  "paras": [
+   {
+    "t": 428,
+    "x": "# Counting local minima"
+   },
+   {
+    "t": 431,
+    "x": "Why count local minima rather than length? A local minimum is where an orbit stops falling and starts rising. Simons and de Weger called a cycle with exactly $m$ of them an $m$-cycle. Between two minima, a cycle climbs through a run of odd steps and then descends through a run of halvings. So $m$ measures how many separate rise-and-fall episodes the cycle contains."
+   },
+   {
+    "t": 456,
+    "x": "That’s the right measure of difficulty, because each episode contributes its own term to the linear form. With one episode, Steiner’s case, there are two logarithms, and the sharp two-logarithm bounds apply directly. As $m$ grows, the problem needs more logarithms at once, and the constants get worse. The exclusions at 68 and 91 are the points where lattice reduction and the verified computational range could still close the gap."
+   },
+   {
+    "t": 482,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 484000,
+  "paras": [
+   {
+    "t": 484,
+    "x": "# Where it stops"
+   },
+   {
+    "t": 486,
+    "x": "These results lean on computation, so the excluded range grows as the verified range of numbers grows. But the real limit is structural. Once the number of local minima grows along with the length of the cycle, the argument needs bounds involving many logarithms at once. The constants in those bounds grow so quickly that the ceiling ends up far above anything that has been checked, and the contradiction disappears."
+   },
+   {
+    "t": 514,
+    "x": "A recent formalization by André Hallqvist, which we’ll come back to, adds a no-go result here. It shows that certain kinds of modular equations can’t serve as obstructions to cycles. That excludes no cycles by itself, but it narrows down which strategies could."
+   },
+   {
+    "t": 531,
+    "x": "So the forward view, used one orbit-shape at a time, closes off simple loops but not complicated ones. And it says nothing about the other way to fail, an orbit that simply grows forever. To see past that, you need a method that doesn’t inspect orbits individually. The natural move is to turn around."
+   },
+   {
+    "t": 552,
+    "x": "# Part two. Measuring the tree."
+   },
+   {
+    "t": 555,
+    "x": "Look backward. If you can’t follow every orbit forward, perhaps you can show the tree from one is large."
+   },
+   {
+    "t": 562,
+    "x": "The standard measure is a count: how many numbers up to some size $x$ are known to reach one. That count is written $\\pi(x)$. In 1978, Richard Crandall showed that it grows at least like $x$ raised to some positive power, and the history since then is a series of improvements to that power."
+   },
+   {
+    "t": 582,
+    "x": "In 1989, Ilia Krasikov introduced systems of difference inequalities and reached an exponent of $0.43$. Günther Wirsching enlarged the system and reached $0.48$. David Applegate and Jeffrey Lagarias got to $0.65$ with a computer-assisted tree search, and then to $0.81$ by applying nonlinear programming to Krasikov’s inequalities. In 2003, Krasikov and Lagarias together proved the bound that still stands in the refereed literature: for all large enough $x$, $\\pi(x) \\ge x^{0.84}$."
+   },
+   {
+    "t": 621,
+    "x": "# Where it stops"
+   },
+   {
+    "t": 624,
+    "x": "That bound measures the size of the tree, not its share of the integers. Any exponent below one, however close it gets, still allows the numbers reaching one to be a vanishing fraction of all numbers."
+   },
+   {
+    "t": 637,
+    "x": "What’s really wanted is a positive lower density. That means that at every scale, the numbers reaching one make up at least some fixed fraction of the whole."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 647000,
+  "paras": [
+   {
+    "t": 647,
+    "x": "# Why “lower”"
+   },
+   {
+    "t": 651,
+    "x": "Formally, the lower natural density is $$\\liminf_{x\\to\\infty} \\frac{\\pi(x)}{x}.$$ The limit inferior is used because the ordinary limit may not exist. The ratio could rise and fall forever, never settling. The limit inferior is the lowest level the ratio keeps returning to."
+   },
+   {
+    "t": 669,
+    "x": "A positive lower density means the fraction never sinks below a fixed floor, at any sufficiently large scale. That is strictly more than a positive upper density, which would only require the fraction to be large along some favourable sequence of scales. A set can be dense at some scales and sparse at others, and only the lower version rules that out."
+   },
+   {
+    "t": 695,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 698000,
+  "paras": [
+   {
+    "t": 698,
+    "x": "Recent preprints haven’t moved the refereed frontier. A preprint by Chao Liu, from December 2025, reportedly announced an exponent of $0.946$ in its first version. The second version proves only $0.3227$, below Krasikov’s result from 1989. In July of this year, Lech Mazur announced a Lean-checked bound with exponent $0.9$, for targets not divisible by three. That hasn’t been refereed."
+   },
+   {
+    "t": 728,
+    "x": "So the tree is provably large. But counting, on its own terms, keeps producing exponents below one, and an exponent below one can’t become a fraction. The backward view has measured the tree’s size and stopped at the question of its share. To get a share, something has to say how much of the number line typical orbits actually cover. That is a forward question again."
+   },
+   {
+    "t": 755,
+    "x": "# Part three. Coming down."
+   },
+   {
+    "t": 758,
+    "x": "Back to the forward direction, but with a different goal. Instead of excluding bad orbits one type at a time, these results ask what a typical orbit does."
+   },
+   {
+    "t": 768,
+    "x": "The starting point is a simple average. After an odd step, the number of halvings that follow is, on average, two. So a typical odd step multiplies by three and then divides by about four. Three quarters is less than one, so on average, orbits shrink. That downward drift is the heart of every result in this part, and it will turn out to be the heart of the whole story."
+   },
+   {
+    "t": 793,
+    "x": "In 1976, Riho Terras proved that almost every number eventually drops below its starting value, where “almost every” means natural density one. In 1994, Ivan Korec strengthened this. For any exponent above $\\log 3 / \\log 4 \\approx 0.7925$, almost every number $n$ eventually falls below $n$ raised to that power."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 820000,
+  "paras": [
+   {
+    "t": 820,
+    "x": "# Where Korec’s number comes from"
+   },
+   {
+    "t": 823,
+    "x": "$\\log 3 / \\log 4$ is the drift, written as an exponent. Each odd step multiplies by three, and on average its halvings divide by four. After the first few typical rounds, a number $n$ has been multiplied by three some number of times and divided by four the same number of times, on average."
+   },
+   {
+    "t": 843,
+    "x": "Look at it on a logarithmic scale. Multiplying by three adds $\\log 3$; dividing by four subtracts $\\log 4$. The ratio of those two is exactly the fraction of $n$’s size, in logarithmic terms, that survives one typical round. So Korec’s exponent is the downward drift, stated as a power. Any power above it is a level that typical orbits get below."
+   },
+   {
+    "t": 870,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 872000,
+  "paras": [
+   {
+    "t": 872,
+    "x": "In 2022, Terence Tao proved something much stronger. Pick any function that grows to infinity, however slowly. Then almost every orbit eventually falls below that function of its starting value."
+   },
+   {
+    "t": 886,
+    "x": "# Where it stops"
+   },
+   {
+    "t": 888,
+    "x": "There are two qualifications, and both matter."
+   },
+   {
+    "t": 891,
+    "x": "The first is that Tao’s “almost every” is measured in logarithmic density, not natural density. Natural density counts every number equally. Logarithmic density gives larger numbers less weight. Natural density one implies logarithmic density one, but not the other way around. Tao noted that upgrading to natural density seems plausible, but he didn’t prove it."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 916000,
+  "paras": [
+   {
+    "t": 916,
+    "x": "# Logarithmic density"
+   },
+   {
+    "t": 920,
+    "x": "Logarithmic density weights each number $n$ by $1/n$, and normalizes by $\\sum_{n \\le x} 1/n \\approx \\log x$. Under this weighting, a block of numbers near a million counts for far less than a block of the same length near a hundred. The large numbers are damped."
+   },
+   {
+    "t": 939,
+    "x": "That damping is what allowed Tao’s argument to settle down. His proof tracks a first-passage random variable, roughly the state of an orbit the first time it crosses a given level, and shows that its distribution stabilises. The logarithmic weighting makes this stabilisation available. Under natural density, with every number counted equally, the argument doesn’t close."
+   },
+   {
+    "t": 962,
+    "x": "And the gap between the two densities is real. A set can have logarithmic density one while its natural density doesn’t exist at all, because its ratio keeps oscillating."
+   },
+   {
+    "t": 972,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 974000,
+  "paras": [
+   {
+    "t": 974,
+    "x": "Two lines of preprints from this year claim that upgrade. In July, Mazur claimed descent below every growing threshold, in natural density and within a logarithmic number of steps, with a Lean formalization. In October, I. A. Shaik revised a preprint claiming polylogarithmic descent in natural density. Neither has been refereed."
+   },
+   {
+    "t": 997,
+    "x": "The second qualification holds even if those claims are right. Coming down is not the same as arriving. An orbit can fall far below its start and still, in principle, climb again or enter a cycle. These results say typical orbits get small. They don’t say typical orbits reach one, and they say nothing about every orbit."
+   },
+   {
+    "t": 1018,
+    "x": "So now we have two partial pictures, facing opposite ways. The backward tree is large, but not provably a fixed share. Forward orbits typically come down, but not provably all the way. The obvious hope is that the two could be joined. Before trying that, it helps to see how far the backward picture alone can be pushed."
+   },
+   {
+    "t": 1039,
+    "x": "# Part four. The tree reaches everywhere."
+   },
+   {
+    "t": 1042,
+    "x": "Earlier this month, André Hallqvist released a Lean 4 formalization that pushes the backward picture much further. It’s called <em>Effective Remainder Everywhere</em>."
+   },
+   {
+    "t": 1051,
+    "x": "Fix a target that isn’t divisible by three. Fix any modulus, and any remainder with respect to that modulus. Hallqvist proves that some number with that remainder reaches the target, and he gives an explicit bound on how large that number needs to be. So every remainder class contains predecessors of the target, including the classes divisible by three, which the target itself had to avoid. From the point of view of remainders, the backward tree has no blind spots at all. The proof uses only Lean’s core library and sits in a public repository. It hasn’t been peer reviewed."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1086000,
+  "paras": [
+   {
+    "t": 1086,
+    "x": "# How the proof divides the modulus"
+   },
+   {
+    "t": 1090,
+    "x": "The argument splits the modulus into two pieces. One piece is made of the powers of two and three. The other is everything coprime to six."
+   },
+   {
+    "t": 1099,
+    "x": "The powers of two and three are handled through parity words of the shortcut map: the sequence of odd and even steps an orbit takes. Prescribing that sequence controls the remainder modulo powers of two and three directly."
+   },
+   {
+    "t": 1116,
+    "x": "The part coprime to six is handled differently, through the fibres of the backward closure, meaning the sets of predecessors grouped by remainder. A minimal-period argument then shows that translation by one acts as a stabilizer. Informally, shifting a remainder class by one doesn’t change whether it is hit, so if one class is reached, they all are."
+   },
+   {
+    "t": 1142,
+    "x": "This result is about the ordinary map, with every halving counted. Much of the literature, including the cycle arguments from Part one, uses the shortcut that strips out the halvings and tracks only how one odd number leads to the next. For many questions, that loses nothing. Here, it loses the mechanism. Even numbers are part of what has to be reached, and the halvings carry the powers of two that the argument works with."
+   },
+   {
+    "t": 1169,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1171000,
+  "paras": [
+   {
+    "t": 1171,
+    "x": "The bound is enormous. Call the modulus $N$. The guaranteed predecessor is at most $w \\cdot 2^{2^{48N^4}}$, where $w$ is the target. That’s a double exponential."
+   },
+   {
+    "t": 1187,
+    "x": "A small example shows how much room there is. Take the target eleven, and ask for a predecessor divisible by seven. Seven itself works: $7 \\to 22 \\to 11$. The theorem, by contrast, only promises a predecessor below roughly $10^{10^{34692}}$."
+   },
+   {
+    "t": 1209,
+    "x": "This is best read as a first bound. It comes from a general construction with a lot of slack, and it can almost certainly be brought down. What exists today is a finite, explicit guarantee for every modulus and every remainder, where before there was none."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1227000,
+  "paras": [
+   {
+    "t": 1227,
+    "x": "# How far the bound might come down"
+   },
+   {
+    "t": 1232,
+    "x": "A more ambitious possibility is that the techniques behind Mazur’s density results, which we’ll meet shortly, could be carried into Hallqvist’s framework. If so, the double exponential might come down to something like an ordinary exponential, with a polynomial in the exponent. It would still be astronomical, but considerably smaller."
+   },
+   {
+    "t": 1255,
+    "x": "That’s speculation. The two approaches are built differently, and combining them would be real mathematical work."
+   },
+   {
+    "t": 1263,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1265000,
+  "paras": [
+   {
+    "t": 1265,
+    "x": "# A different map"
+   },
+   {
+    "t": 1268,
+    "x": "So the backward tree is complete, at least as far as remainders can tell. Here, the story turns. The question is no longer how much the backward tree contains, but whether that could ever be enough."
+   },
+   {
+    "t": 1280,
+    "x": "Hallqvist also proved the same result for the $5x+1$ map, where odd numbers are multiplied by five instead of three. The construction carries over. So the backward tree of $5x+1$ reaches every remainder just as thoroughly."
+   },
+   {
+    "t": 1295,
+    "x": "But going forward, $5x+1$ is a different world. It has at least three separate cycles, containing 1, 13, and 17. And some of its orbits appear to grow forever. You can see why from the same average as before. A typical odd step now multiplies by five and divides by about four. Five quarters is more than one, so the drift points upward instead of down."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1322000,
+  "paras": [
+   {
+    "t": 1322,
+    "x": "# The $5x+1$ bound"
+   },
+   {
+    "t": 1326,
+    "x": "For $5x+1$, the guaranteed predecessor is at most $w \\cdot 2^{2^{105N^5}}$. It is again a double exponential, now with a larger top exponent, $105N^5$ instead of $48N^4$. The known cycles have smallest odd elements 1, 13, and 17."
+   },
+   {
+    "t": 1354,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1356000,
+  "paras": [
+   {
+    "t": 1356,
+    "x": "Put those two facts side by side. Two maps can have backward trees with exactly the same reach into every remainder class, and completely opposite forward behaviour. The backward property is real, but it can’t tell those two maps apart. And the conjecture is a statement about exactly the difference between them."
+   },
+   {
+    "t": 1376,
+    "x": "This gives us a test. Call it the $5x+1$ test. Any argument that would work just as well for $5x+1$ cannot prove the conjecture, because $5x+1$ has cycles other than one, and the argument would prove something false. The backward tree passes that test perfectly, which is exactly why it can’t be enough. The downward drift fails it. So whatever real content the problem has must run through the drift."
+   },
+   {
+    "t": 1404,
+    "x": "# Part five. Crossing over."
+   },
+   {
+    "t": 1407,
+    "x": "That brings us to the most ambitious claims of this year, which try to do exactly that: use the drift to make the backward tree carry weight."
+   },
+   {
+    "t": 1415,
+    "x": "In September, Mazur released a manuscript with a Lean formalization. It claims an explicit positive constant such that, for every large enough bound, at least that fraction of the numbers below the bound reach one. They do so within about $10.46 \\log n$ steps, counting every ordinary step. A companion preprint extends this to any fixed target not divisible by three, without assuming that the target itself reaches one."
+   },
+   {
+    "t": 1443,
+    "x": "The method shows the bridge clearly. Mazur starts from a single number that is known to reach one, and builds the tree backward from it, keeping only branches whose shape is typical. Then he uses the downward drift of $3x+1$ to show that these branches are plentiful enough, at every scale, to fill a fixed fraction of the integers. It is a backward construction, made to carry weight by a forward statistic. And that statistic is exactly the one that fails the $5x+1$ test, which is why the construction doesn’t transfer."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1478000,
+  "paras": [
+   {
+    "t": 1478,
+    "x": "# The seed"
+   },
+   {
+    "t": 1483,
+    "x": "The single starting number in Mazur’s construction comes from a simple family: $R = (4^m - 1)/3$. Then $3R + 1 = 4^m$ is a power of four, so a single odd step followed by halvings takes $R$ straight to one."
+   },
+   {
+    "t": 1504,
+    "x": "The construction needs a seed in a particular remainder class modulo a power of three, chosen by averaging so that its backward tree has enough weight. The family supplies one, because as the power of four runs through a full period, these numbers pass through every remainder class modulo that power of three. So some member lands in the favourable class, and it is already known to reach one in one step."
+   },
+   {
+    "t": 1528,
+    "x": "This is why the result doesn’t assume anything about convergence beyond that one seed. Everything else is built backward from a number whose fate is settled."
+   },
+   {
+    "t": 1541,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1544000,
+  "paras": [
+   {
+    "t": 1544,
+    "x": "I. A. Shaik claims positive lower density of convergence at any rate above $3 / \\log(4/3) \\approx 10.43$ steps per unit of logarithm. And in October, Kelvin Lau made Mazur’s construction fully explicit. Below any bound, at least that bound divided by a fixed tower of twos, rounded down, of the odd numbers reach one in the same number of steps."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1571000,
+  "paras": [
+   {
+    "t": 1571,
+    "x": "# Counting every step"
+   },
+   {
+    "t": 1576,
+    "x": "The $10.46$ counts every application of the ordinary map. Each tripling counts as one step, and each halving counts as one step. In the shortcut map, an odd step and all its halvings are merged into one. Mazur’s time bound deliberately does not do that."
+   },
+   {
+    "t": 1588,
+    "x": "So the constant has two parts in its derivation. First, the number of odd steps along a selected orbit is bounded by a multiple of the logarithm of the starting number. Then the full record of halvings, including the last step from the seed down to one, converts that into ordinary steps. The rounding is generous, so $10.46$ is a certified ceiling, not an estimate of typical behaviour."
+   },
+   {
+    "t": 1624,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1626000,
+  "paras": [
+   {
+    "t": 1626,
+    "x": "# Where it stops"
+   },
+   {
+    "t": 1628,
+    "x": "The tower in Lau’s bound is $2^{2^{2^{163}}}$. Below that height, the count rounds down to zero, so the statement only says something about numbers beyond any imaginable scale."
+   },
+   {
+    "t": 1643,
+    "x": "That’s part of a wider pattern. Several of this year’s results, many produced with substantial help from AI systems, establish bounds that didn’t exist before, but the numbers are astronomical. Mazur’s explicit constants are given by long arithmetic recipes, and he says plainly that they aren’t numerically usable. Hallqvist’s double exponential belongs to the same family. Each shows that a bound exists. Making it reasonable is a separate task, and it’s still open."
+   },
+   {
+    "t": 1672,
+    "x": "The standing of these claims needs the same care. Mazur’s work was developed with AI agents, and Lau’s was found and formalized with an automated prover. A compiled Lean proof establishes something narrow and exact: every step follows from the definitions as they were written down. If a formalization encodes density, or reachability, or step counts in a way that differs subtly from the standard meaning, the proof still compiles, but it certifies a different theorem. So there are three separate checks: verification by machine, a human audit of what was actually stated, and archival peer review. For these preprints, only the first is complete. None of them has been refereed."
+   }
+  ]
+ },
+ {
+  "who": "Koda",
+  "label": "Tangent",
+  "start": 1715000,
+  "paras": [
+   {
+    "t": 1715,
+    "x": "# What Lean actually checks"
+   },
+   {
+    "t": 1719,
+    "x": "Lean checks each deduction against the encoded definitions and the axioms in use. For these projects, those are typically propositional extensionality, classical choice, and quotient soundness, all standard. Mazur reports no admitted proofs and no project-specific axioms, and Hallqvist’s formalization uses only Lean’s core library."
+   },
+   {
+    "t": 1742,
+    "x": "What Lean cannot check is whether the formal statement says what the paper says. If density were defined with the wrong limit, or a step count with the wrong convention, the proof would compile without complaint. One automated system checking another’s output is not peer review. That correspondence is a question for human readers."
+   },
+   {
+    "t": 1762,
+    "x": "Back to the main thread."
+   }
+  ]
+ },
+ {
+  "who": "Cruz",
+  "start": 1764000,
+  "paras": [
+   {
+    "t": 1764,
+    "x": "And even if all of it holds, a positive fraction is still not everything. The bridge carries some of the integers across, not all of them."
+   },
+   {
+    "t": 1772,
+    "x": "# What remains"
+   },
+   {
+    "t": 1775,
+    "x": "So, back to the question we started with. Why does every approach stop just short?"
+   },
+   {
+    "t": 1780,
+    "x": "Because each one sees from one direction, and each direction has a blind spot of its own. The cycle methods see forward, but only loops of limited complexity. The counting methods see backward, and measure the tree’s size but not its share. The descent methods see forward through an average, and averages describe typical orbits, never every orbit. Hallqvist’s theorem sees the backward tree completely, at the level of remainders, and the $5x+1$ map shows that completeness of that kind decides nothing. Mazur’s construction joins a backward tree to a forward average, which is why it gets further than either alone, and why what it gets is a fraction rather than the whole."
+   },
+   {
+    "t": 1821,
+    "x": "The $5x+1$ test sorts all of this. The backward structure passes it, so the backward structure can’t be the proof. The drift fails it, so the drift is where the content lives. But the drift is an average, and an average leaves room for exceptions."
+   },
+   {
+    "t": 1839,
+    "x": "That lets us state what a proof needs, in the precise terms I promised at the start. It needs an ingredient that distinguishes $3x+1$ from $5x+1$, and that holds for every orbit, not just most of them. Either a forward argument that rules out every exception to the drift, or a backward property strong enough that $5x+1$ demonstrably lacks it."
+   },
+   {
+    "t": 1864,
+    "x": "Nothing known today is either. But the shape of the problem has changed. Fifty years ago, the conjecture was a ten-second statement with no clear place to push. Now the backward structure is well understood, forward behaviour is understood on average, and the two have been joined, at least in preprint, across a fixed fraction of the integers."
+   },
+   {
+    "t": 1888,
+    "x": "The gap that remains is no longer vague. It is the difference between almost every orbit and every orbit. That is the same ten-second statement we began with, but now we know exactly which word in it carries the weight. <em>Every.</em>"
+   }
+  ]
+ }
 ];

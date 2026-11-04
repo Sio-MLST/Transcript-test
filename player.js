@@ -23,20 +23,22 @@ SEG.forEach((seg, i) => {
   box.className = "seg " + seg.who.toLowerCase();
   seg.el = box;
   if (seg.who === "Koda") {
-    box.innerHTML = '<div class="note-head"><span class="note-tag">Koda · technical note</span><span class="note-time">' +
+    box.innerHTML = '<div class="note-head"><span class="note-tag">' + (seg.label || "Koda · technical note") + '</span><span class="note-time">' +
       mmss(seg.start / 1000) + '</span></div>';
   }
-  const weights = seg.paras.map(p => p.replace(/\$[^$]*\$/g, "xxxxxxxxxxxxxxx").length + 40);
+  const items = seg.paras.map(p => typeof p === "string" ? { x: p } : p);
+  const weights = items.map(p => p.x.replace(/\$[^$]*\$/g, "xxxxxxxxxxxxxxx").length + 40);
   const total = weights.reduce((a, b) => a + b, 0);
   let acc = 0;
-  seg.p = seg.paras.map((txt, k) => {
+  seg.p = items.map((item, k) => {
+    const txt = item.x;
     const frac = acc / total; acc += weights[k];
     const head = txt.startsWith("# ");
     const el = document.createElement(head ? "h2" : "p");
     el.className = "para";
-    el.textContent = head ? txt.slice(2) : txt;
+    el.innerHTML = head ? txt.slice(2) : txt;  // trusted local data: allows <em>, KaTeX renders after
     box.appendChild(el);
-    const para = { el, frac };
+    const para = { el, frac, t: item.t };
     el.addEventListener("click", ev => { ev.stopPropagation(); clickPara(i, k); });
     return para;
   });
@@ -44,6 +46,7 @@ SEG.forEach((seg, i) => {
   root.appendChild(box);
 });
 const paraTime = (i, k) => {
+  if (SEG[i].p[k].t != null) return SEG[i].p[k].t;  // explicit timestamp wins
   const s = SEG[i].start / 1000, e = segEnd(i);
   return s + SEG[i].p[k].frac * ((isFinite(e) ? e : s + 60) - s);
 };
@@ -122,6 +125,6 @@ addEventListener("keydown", e => {
 audio.addEventListener("play", () => { document.body.classList.add("playing"); btn.textContent = "❚❚ Pause"; });
 audio.addEventListener("pause", () => { document.body.classList.remove("playing"); btn.textContent = "▶ Play"; });
 audio.addEventListener("loadedmetadata", () => { duration = audio.duration; });
-audio.addEventListener("error", () => { clock.textContent = "Custom.mp3 not found"; });
+audio.addEventListener("error", () => { clock.textContent = "Audio file not found"; });
 requestAnimationFrame(tick);
 })();
