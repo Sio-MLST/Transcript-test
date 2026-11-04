@@ -1,0 +1,32 @@
+:root { --bg:#121212; --fg:#d8d5d0; --dim:#8a8781; --cruz:#a9c7e8; --accent:#7ab8ff; --gold:#d0a95f; }
+* { box-sizing: border-box; }
+body { background:var(--bg); color:var(--fg); font:18px/1.7 Georgia,"Times New Roman",serif;
+  margin:0; -webkit-font-smoothing:antialiased; padding-top:env(safe-area-inset-top,0px); }
+main { max-width:720px; margin:0 auto; padding:24px 20px 45vh; }
+#bar { position:sticky; top:0; z-index:5; display:flex; gap:14px; align-items:center; justify-content:center;
+  padding:10px 12px calc(10px); background:rgba(18,18,18,.92); backdrop-filter:blur(6px);
+  border-bottom:1px solid #2a2a2a; font:13px system-ui,sans-serif; color:var(--dim); }
+#bar button { font:inherit; color:var(--fg); background:#242424; border:1px solid #3a3a3a; border-radius:6px; padding:5px 12px; cursor:pointer; }
+#clock { font-family:"SF Mono",Consolas,Menlo,monospace; min-width:88px; text-align:center; }
+#bar label { cursor:pointer; color:var(--gold); }
+#docHint { font:12px system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); text-align:center; margin:8px 0 36px; }
+.para { margin:0 0 .6em; padding:5px 12px; border-radius:8px; cursor:pointer;
+  transition:background .35s, box-shadow .35s, opacity .5s; }
+.para:hover { background:rgba(255,255,255,.025); }
+h2.para { font-weight:400; font-style:italic; font-size:22px; margin:1.4em 0 .4em; color:var(--fg); }
+section.cruz .para { color:var(--cruz); }
+section.cruz h2.para { color:var(--fg); }
+section.cruz .para.active { background:rgba(122,184,255,.07); box-shadow:inset 3px 0 0 var(--accent); }
+aside.koda { margin:16px 8px 22px 30px; padding:12px 15px 6px; border:1px solid #2e2a1f; border-left:3px solid #6b5c34;
+  border-radius:10px; background:#171511; font-size:15px; line-height:1.65; color:#b3aa96; cursor:pointer;
+  transition:border-color .4s, background .4s, opacity .5s, box-shadow .45s; }
+aside.koda:hover { border-left-color:#a08048; }
+aside.koda .para { padding:2px 0; }
+aside.koda.active { border-color:rgba(208,169,95,.55); border-left-color:var(--gold); background:#241d10; color:var(--fg);
+  box-shadow:0 0 30px rgba(208,169,95,.14); }
+.note-head { display:flex; gap:10px; margin-bottom:6px; font:600 11px system-ui,sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--gold); opacity:.85; }
+.note-time { font-family:"SF Mono",Consolas,Menlo,monospace; font-weight:400; letter-spacing:0; }
+.katex { color:inherit; }
+body.playing section.cruz .para:not(.active) { opacity:.6; }
+body.playing aside.koda:not(.active) { opacity:.45; }

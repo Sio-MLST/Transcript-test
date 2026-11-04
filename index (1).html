@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Collatz Conjecture — What Remains</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="bar">
+  <button id="playBtn">▶ Play</button>
+  <span id="clock">0:00 / 0:00</span>
+  <label><input type="checkbox" id="kodaToggle"> Play Koda notes</label>
+</div>
+<main>
+  <p id="docHint">Click any passage to listen · click again to pause · Koda notes play only when clicked</p>
+  <div id="transcript"></div>
+</main>
+<audio id="audio" src="Custom.mp3" preload="auto"></audio>
+<script src="transcript.js"></script>
+<script src="player.js"></script>
+</body>
+</html>
